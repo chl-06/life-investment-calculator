@@ -302,6 +302,33 @@
     border-top: 1px solid #f0f0f0; padding-top: 16px;
   }
 
+  /* Category picker popup */
+  .picker-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.25); z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 0.15s ease-out;
+  }
+  .picker-popup {
+    background: #fff; border-radius: 14px; padding: 16px;
+    width: 280px; max-width: 90vw;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    animation: popIn 0.2s ease-out;
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .picker-title { font-size: 13px; color: var(--text-secondary); text-align: center; margin-bottom: 12px; font-weight: 600; }
+  .picker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .picker-btn {
+    padding: 10px 8px; border-radius: 8px; border: none;
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    text-align: center; font-family: inherit;
+    transition: transform 0.1s; -webkit-tap-highlight-color: transparent;
+  }
+  .picker-btn:active { transform: scale(0.95); }
+
   @media (max-width: 480px) {
     body { padding: 20px 12px; }
     .container { padding: 28px 20px; }
@@ -413,7 +440,7 @@ function classify(name) {
   const n = name.trim().toLowerCase();
 
   // 损耗 — 负向产出
-  if (/加班|内耗|拖延|摸鱼|发呆|摆烂|焦虑|emo|抑郁|烦躁|失眠|熬夜|通宵|酗酒|抽烟|烟酒|暴饮暴食|自暴自弃|抱怨|吵架|发脾气|生闷气|崩溃|躺床(?!睡)/.test(n)) return 'liability';
+  if (/加班|内耗|拖延|摸鱼|发呆|摆烂|焦虑|emo|抑郁|烦躁|失眠|熬夜|通宵|酗酒|抽烟|烟酒|暴饮暴食|自暴自弃|抱怨|吵架|发脾气|生闷气|崩溃|躺床(?!睡)|摊手|叹气|放空|无所事事|袖手旁观/.test(n)) return 'liability';
 
   // 消耗 — 被动消费、无意识刷
   if (/刷短?视频|刷抖[音手]|刷b站|刷微[博信]|刷小红[书]|刷朋友[圈]|刷头[条]|刷资[讯]|刷直[播]|玩手[机]|看手[机]|刷微博|刷知乎|刷贴吧|刷论坛|水群|灌水|吃瓜|凑热闹|刷剧/.test(n)) return 'depreciation';
@@ -496,11 +523,50 @@ function clearHabits() { if (habits.length) { habits = []; render(); enable(); v
 function render() {
   document.getElementById('tagList').innerHTML = habits.map((h, i) => {
     const t = getTag(h.type);
-    return `<span class="tag" style="background:${t.bg};color:${t.color};border-color:${t.color}22">${t.label} ${h.name} ${h.hours}h <button onclick="removeHabit(${i})">✕</button></span>`;
+    return `<span class="tag" style="background:${t.bg};color:${t.color};border-color:${t.color}22" onclick="showPicker(${i})">${t.label} ${h.name} ${h.hours}h <button onclick="event.stopPropagation();removeHabit(${i})">✕</button></span>`;
   }).join('');
 }
 
 function enable() { document.getElementById('calcBtn').disabled = habits.length === 0; }
+
+// Category picker — tap a tag to reclassify
+var PICKER_CATS = [
+  ['investment', '📈 增值', '#7a9a5a', '#f2f5ee'],
+  ['dividend',   '💛 社交', '#b89a5a', '#faf5ee'],
+  ['maintenance','🔋 维护', '#5a8aaa', '#eef2f5'],
+  ['expense',    '🎮 娱乐', '#8a7aaa', '#f2eef5'],
+  ['depreciation','📉 消耗', '#b85a5a', '#f5eeee'],
+  ['liability',  '⛓️ 损耗', '#9a4a4a', '#f5eeef'],
+  ['operating',  '📋 杂务', '#8a8a8a', '#f2f2f2'],
+];
+
+function showPicker(idx) {
+  var ov = document.createElement('div');
+  ov.className = 'picker-overlay';
+  ov.id = 'pickerOv';
+  ov.addEventListener('click', function(e) { if (e.target === ov) closePicker(); });
+  ov.innerHTML =
+    '<div class="picker-popup">' +
+    '<div class="picker-title">修改 "' + habits[idx].name + '" 类别</div>' +
+    '<div class="picker-grid">' +
+    PICKER_CATS.map(function(c) {
+      return '<button class="picker-btn" style="background:' + c[3] + ';color:' + c[2] + (habits[idx].type === c[0] ? ';box-shadow:inset 0 0 0 2px ' + c[2] : '') + '" onclick="changeCategory(' + idx + ',\'' + c[0] + '\')">' + c[1] + '</button>';
+    }).join('') +
+    '</div></div>';
+  document.body.appendChild(ov);
+}
+
+function changeCategory(idx, type) {
+  habits[idx].type = type;
+  closePicker();
+  render();
+  vibrate();
+}
+
+function closePicker() {
+  var el = document.getElementById('pickerOv');
+  if (el) { el.remove(); }
+}
 
 const PRESETS = {
   '打工人': [['睡觉',7],['吃饭洗漱',1.5],['上班',9],['通勤',1.5],['刷手机',2],['追剧',1],['发呆拖延',1],['社交',0.5],['家务',0.5]],
