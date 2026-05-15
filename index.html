@@ -706,12 +706,50 @@ function initAudio() {
   try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
 }
 
-// 封装震动函数
+// 封装震动函数（震动 + Web Audio 音效回退）
 function vibrate(ms) {
-  ms = ms || 10;
+  // 先尝试硬件震动
   if ("vibrate" in navigator) {
-    try { navigator.vibrate(ms); } catch(e) {}
+    try { navigator.vibrate(ms); return; } catch(e) {}
   }
+  // 短震动（≤20ms）不播放音效，避免滑块操作太吵
+  if (typeof ms === 'number' && ms <= 20) return;
+  // 回退：Web Audio 点击音效
+  playClick();
+}
+function playClick() {
+  try {
+    initAudio();
+    if (audioCtx && audioCtx.state === 'running') {
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = 800;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.06);
+    }
+  } catch(e) {}
+}
+function playClick() {
+  try {
+    initAudio();
+    if (audioCtx && audioCtx.state === 'running') {
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = 800;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.06);
+    }
+  } catch(e) {}
 }
 
 // Init audio context on first user tap (required by browsers)
