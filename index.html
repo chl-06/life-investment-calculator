@@ -302,16 +302,16 @@
     border-top: 1px solid #f0f0f0; padding-top: 16px;
   }
 
-  /* Category picker popup */
-  .picker-overlay {
+  /* Edit popup */
+  .edit-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.25); z-index: 999;
     display: flex; align-items: center; justify-content: center;
     animation: fadeIn 0.15s ease-out;
   }
-  .picker-popup {
-    background: #fff; border-radius: 14px; padding: 16px;
-    width: 280px; max-width: 90vw;
+  .edit-popup {
+    background: #fff; border-radius: 14px; padding: 20px;
+    width: 320px; max-width: 92vw;
     box-shadow: 0 12px 40px rgba(0,0,0,0.15);
     animation: popIn 0.2s ease-out;
   }
@@ -319,15 +319,71 @@
     from { opacity: 0; transform: scale(0.92); }
     to { opacity: 1; transform: scale(1); }
   }
-  .picker-title { font-size: 13px; color: var(--text-secondary); text-align: center; margin-bottom: 12px; font-weight: 600; }
-  .picker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  .picker-btn {
-    padding: 10px 8px; border-radius: 8px; border: none;
-    font-size: 12px; font-weight: 500; cursor: pointer;
+  .edit-title { font-size: 14px; font-weight: 700; text-align: center; margin-bottom: 14px; color: var(--text-primary); }
+  .edit-field { margin-bottom: 12px; }
+  .edit-field label { display: block; font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-bottom: 4px; }
+  .edit-field input { width: 100%; padding: 10px 12px; border: 1.5px solid #eee; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s; }
+  .edit-field input:focus { border-color: var(--accent-brown-start); }
+  .edit-time-row { display: flex; align-items: center; gap: 8px; }
+  .edit-time-row button {
+    width: 36px; height: 36px; padding: 0;
+    background: #f5f5f5; color: var(--text-primary); box-shadow: none;
+    font-size: 18px; font-weight: 600; border-radius: 8px; border: 1.5px solid #eee;
+  }
+  .edit-time-row button:active { background: #eee; transform: none; box-shadow: none; }
+  .edit-time-row .et-display { flex: 1; text-align: center; font-size: 18px; font-weight: 700; }
+  .edit-cat-title { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-bottom: 6px; }
+  .edit-cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 12px; }
+  .edit-cat-btn {
+    padding: 8px 6px; border-radius: 6px; border: 1.5px solid transparent;
+    font-size: 11px; font-weight: 500; cursor: pointer;
     text-align: center; font-family: inherit;
     transition: transform 0.1s; -webkit-tap-highlight-color: transparent;
   }
-  .picker-btn:active { transform: scale(0.95); }
+  .edit-cat-btn:active { transform: scale(0.95); }
+  .edit-cat-btn.active { border-color: inherit; box-shadow: inset 0 0 0 2px; }
+  .edit-btns { display: flex; gap: 8px; }
+  .edit-btns button { flex: 1; padding: 12px; font-size: 13px; text-transform: none; letter-spacing: 0; }
+  .edit-btns .btn-cancel { background: #f5f5f5; color: var(--text-secondary); box-shadow: none; }
+  .edit-btns .btn-cancel:active { background: #eee; }
+
+  /* Warning banner */
+  .warn-banner {
+    background: #faf6ed; border-left: 4px solid #e8c84a; border-radius: 6px;
+    padding: 10px 14px; font-size: 12px; color: #8a7a3a; margin-bottom: 10px;
+    display: none;
+  }
+  .warn-banner.show { display: block; }
+
+  /* Algorithm breakdown */
+  .algo-toggle {
+    background: none; border: none; font-size: 11px; color: var(--text-secondary);
+    cursor: pointer; padding: 8px 0; width: 100%; text-align: left;
+    font-family: inherit; letter-spacing: 0; text-transform: none; box-shadow: none;
+  }
+  .algo-toggle:active { transform: none; box-shadow: none; }
+  .algo-details {
+    display: none; font-size: 11px; color: var(--text-secondary); line-height: 1.7;
+    background: #fafaf8; border-radius: 6px; padding: 10px 12px; margin-bottom: 10px;
+  }
+  .algo-details.show { display: block; }
+  .algo-details .algo-row { display: flex; justify-content: space-between; padding: 1px 0; }
+  .algo-details .algo-total { border-top: 1px solid #eee; margin-top: 4px; padding-top: 4px; font-weight: 600; color: var(--text-primary); }
+
+  .share-btn {
+    width: 100%; margin: 8px 0 0; padding: 12px;
+    background: #f5f5f5; color: var(--text-secondary); box-shadow: none;
+    text-transform: none; letter-spacing: 0; font-size: 12px;
+  }
+  .share-btn:active { background: #eee; }
+
+  .copy-toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: #333; color: #fff; padding: 8px 18px; border-radius: 8px;
+    font-size: 13px; z-index: 9999; opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .copy-toast.show { opacity: 1; }
 
   @media (max-width: 480px) {
     body { padding: 20px 12px; }
@@ -397,6 +453,10 @@
 
     <div id="verdictContent"></div>
     <div id="tipsContent"></div>
+    <div class="warn-banner" id="warnBanner"></div>
+    <button class="algo-toggle" onclick="toggleAlgo()">📊 查看评分算法明细</button>
+    <div class="algo-details" id="algoDetails"></div>
+    <button class="share-btn" onclick="copyResults()">📋 复制结果分享</button>
   </div>
 
   <div class="footer">人生有风险，活着需谨慎 · 仅供娱乐</div>
@@ -523,50 +583,173 @@ function clearHabits() { if (habits.length) { habits = []; render(); enable(); v
 function render() {
   document.getElementById('tagList').innerHTML = habits.map((h, i) => {
     const t = getTag(h.type);
-    return `<span class="tag" style="background:${t.bg};color:${t.color};border-color:${t.color}22" onclick="showPicker(${i})">${t.label} ${h.name} ${h.hours}h <button onclick="event.stopPropagation();removeHabit(${i})">✕</button></span>`;
+    return `<span class="tag" style="background:${t.bg};color:${t.color};border-color:${t.color}22" onclick="showEdit(${i})">${t.label} ${h.name} ${h.hours}h <button onclick="event.stopPropagation();removeHabit(${i})">✕</button></span>`;
   }).join('');
 }
 
 function enable() { document.getElementById('calcBtn').disabled = habits.length === 0; }
 
-// Category picker — tap a tag to reclassify
-var PICKER_CATS = [
-  ['investment', '📈 增值', '#7a9a5a', '#f2f5ee'],
-  ['dividend',   '💛 社交', '#b89a5a', '#faf5ee'],
-  ['maintenance','🔋 维护', '#5a8aaa', '#eef2f5'],
-  ['expense',    '🎮 娱乐', '#8a7aaa', '#f2eef5'],
-  ['depreciation','📉 消耗', '#b85a5a', '#f5eeee'],
-  ['liability',  '⛓️ 损耗', '#9a4a4a', '#f5eeef'],
-  ['operating',  '📋 杂务', '#8a8a8a', '#f2f2f2'],
-];
+// ===== localStorage 持久化 =====
+function saveHabits() {
+  try { localStorage.setItem('lifeRoi_habits', JSON.stringify(habits)); } catch(e) {}
+}
+function loadHabits() {
+  try {
+    var d = localStorage.getItem('lifeRoi_habits');
+    if (d) { habits = JSON.parse(d); render(); enable(); }
+  } catch(e) {}
+}
 
-function showPicker(idx) {
+// ===== 编辑弹窗（名称 / 时间 / 分类）=====
+function showEdit(idx) {
+  var h = habits[idx];
+  var et = h.hours;
+  var etEl, nameEl, catEl = h.type;
+
   var ov = document.createElement('div');
-  ov.className = 'picker-overlay';
-  ov.id = 'pickerOv';
-  ov.addEventListener('click', function(e) { if (e.target === ov) closePicker(); });
+  ov.className = 'edit-overlay';
+  ov.id = 'editOv';
+  ov.addEventListener('click', function(e) { if (e.target === ov) closeEdit(); });
+
+  var cats = [
+    ['investment','📈 增值','#7a9a5a','#f2f5ee'],
+    ['dividend','💛 社交','#b89a5a','#faf5ee'],
+    ['maintenance','🔋 维护','#5a8aaa','#eef2f5'],
+    ['expense','🎮 娱乐','#8a7aaa','#f2eef5'],
+    ['depreciation','📉 消耗','#b85a5a','#f5eeee'],
+    ['liability','⛓️ 损耗','#9a4a4a','#f5eeef'],
+    ['operating','📋 杂务','#8a8a8a','#f2f2f2'],
+  ];
+
+  var catBtns = cats.map(function(c) {
+    var sel = c[0] === catEl;
+    return '<button class="edit-cat-btn" style="background:' + c[3] + ';color:' + c[2] + (sel ? ';border-color:' + c[2] : '') + '" data-cat="' + c[0] + '" onclick="pickCat(this,\'' + c[0] + '\')">' + c[1] + '</button>';
+  }).join('');
+
   ov.innerHTML =
-    '<div class="picker-popup">' +
-    '<div class="picker-title">修改 "' + habits[idx].name + '" 类别</div>' +
-    '<div class="picker-grid">' +
-    PICKER_CATS.map(function(c) {
-      return '<button class="picker-btn" style="background:' + c[3] + ';color:' + c[2] + (habits[idx].type === c[0] ? ';box-shadow:inset 0 0 0 2px ' + c[2] : '') + '" onclick="changeCategory(' + idx + ',\'' + c[0] + '\')">' + c[1] + '</button>';
-    }).join('') +
-    '</div></div>';
+    '<div class="edit-popup">' +
+    '<div class="edit-title">✏️ 编辑行为</div>' +
+    '<div class="edit-field"><label>行为名称</label><input id="editName" value="' + escHtml(h.name) + '" maxlength="40"></div>' +
+    '<div class="edit-field"><label>时长（小时）</label><div class="edit-time-row">' +
+    '<button onclick="adjEditTime(-0.5)">−</button><span class="et-display" id="editTimeDisp">' + et + '</span><button onclick="adjEditTime(0.5)">+</button>' +
+    '</div></div>' +
+    '<div class="edit-cat-title">类别</div><div class="edit-cat-grid" id="editCatGrid">' + catBtns + '</div>' +
+    '<div class="edit-btns"><button class="btn-cancel" onclick="closeEdit()">取消</button><button onclick="editSave(' + idx + ')">保存</button></div>' +
+    '</div>';
+
   document.body.appendChild(ov);
+  etEl = document.getElementById('editTimeDisp');
+  nameEl = document.getElementById('editName');
+  nameEl.focus();
+  nameEl.setSelectionRange(nameEl.value.length, nameEl.value.length);
+  window._editTime = et;
+  window._editIdx = idx;
+  window._editCat = h.type;
 }
 
-function changeCategory(idx, type) {
+function escHtml(s) { return s.replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function pickCat(el, type) {
+  var grid = document.getElementById('editCatGrid');
+  Array.prototype.forEach.call(grid.children, function(b) { b.style.borderColor = 'transparent'; });
+  el.style.borderColor = el.style.color;
+  window._editCat = type;
+}
+
+function adjEditTime(d) {
+  var t = (window._editTime || 0) + d;
+  t = Math.max(0.5, Math.min(24, t));
+  window._editTime = t;
+  var dEl = document.getElementById('editTimeDisp');
+  if (dEl) dEl.textContent = t;
+}
+
+function editSave(idx) {
+  var nameEl = document.getElementById('editName');
+  var name = nameEl ? nameEl.value.trim() : '';
+  if (!name) return;
+  var hours = window._editTime || 1;
+  var type = window._editCat || habits[idx].type;
+  habits[idx].name = name;
+  habits[idx].hours = hours;
   habits[idx].type = type;
-  closePicker();
+  closeEdit();
   render();
+  saveHabits();
   vibrate();
+  // Recalculate if results are visible
+  if (document.getElementById('results').classList.contains('show')) calculate();
 }
 
-function closePicker() {
-  var el = document.getElementById('pickerOv');
+function closeEdit() {
+  var el = document.getElementById('editOv');
   if (el) { el.remove(); }
+  window._editTime = null;
+  window._editIdx = null;
+  window._editCat = null;
 }
+
+// ===== 评分算法明细 =====
+function toggleAlgo() {
+  var el = document.getElementById('algoDetails');
+  el.classList.toggle('show');
+}
+
+// ===== 复制结果分享 =====
+function copyResults() {
+  var score = document.getElementById('scoreNum').textContent;
+  var grade = document.getElementById('scoreGrade').textContent;
+  var m = document.getElementById('metricGrid').querySelectorAll('.s-value');
+  var eff = m[0] ? m[0].textContent : '--';
+  var bad = m[1] ? m[1].textContent : '--';
+  var yr = m[2] ? m[2].textContent : '--';
+  var txt = '📊 人生 ROI 报告\n' +
+    '评分：' + score + ' | ' + grade + '\n' +
+    '增值效率：' + eff + ' | 不良率：' + bad + '\n' +
+    '年化复利：' + yr + '\n' +
+    '——————————\n' +
+    '人生有风险，活着需谨慎\n' +
+    '→ https://chl-06.github.io/life-investment-calculator/';
+
+  // Try clipboard
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(function() { showToast('已复制到剪贴板 📋'); });
+  } else {
+    // Fallback
+    var ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast('已复制到剪贴板 📋'); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+}
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.className = 'copy-toast show';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.classList.remove('show'); setTimeout(function() { t.remove(); }, 400); }, 1500);
+}
+
+// Update addHabit/removeHabit/clearHabits to save
+var _origAdd = addHabit;
+var _origRemove = removeHabit;
+var _origClear = clearHabits;
+addHabit = function() {
+  _origAdd();
+  saveHabits();
+};
+removeHabit = function(i) {
+  _origRemove(i);
+  saveHabits();
+  if (document.getElementById('results').classList.contains('show')) calculate();
+};
+clearHabits = function() {
+  _origClear();
+  saveHabits();
+  document.getElementById('results').classList.remove('show');
+};
 
 const PRESETS = {
   '打工人': [['睡觉',7],['吃饭洗漱',1.5],['上班',9],['通勤',1.5],['刷手机',2],['追剧',1],['发呆拖延',1],['社交',0.5],['家务',0.5]],
@@ -578,7 +761,7 @@ const PRESETS = {
 
 function loadPreset(name) {
   habits = (PRESETS[name]||[]).map(d => ({ name:d[0], hours:d[1], type:classify(d[0]) }));
-  render(); enable(); calculate(); vibrate();
+  render(); enable(); calculate(); saveHabits(); vibrate();
 }
 
 function calculate() {
@@ -650,10 +833,48 @@ function calculate() {
   if (sH > 0 && sH < 7) tips.push('😴 保证睡眠：7-8 小时不可压缩');
   if ((g.dividend?.hours||0) < 0.5) tips.push('💛 增加社交：陪伴家人是低风险高回报资产');
   document.getElementById('tipsContent').innerHTML = tips.length ? '<div class="tips-box"><strong>💡 优化建议</strong><br>'+tips.join('<br>')+'</div>' : '';
+
+  // 24小时校验
+  var warnEl = document.getElementById('warnBanner');
+  if (total < 20 || total > 28) {
+    warnEl.textContent = '⚠️ 总时长 ' + total.toFixed(1) + ' 小时偏离 24 小时较多（' + (total > 24 ? '超' + (total-24).toFixed(1) + 'h' : '缺' + (24-total).toFixed(1) + 'h') + '），请检查是否遗漏或重复录入';
+    warnEl.classList.add('show');
+  } else {
+    warnEl.classList.remove('show');
+  }
+
+  // 评分算法明细
+  var algoRows = '';
+  KEYS.forEach(function(k) {
+    if (g[k].hours > 0) {
+      var coeff = CAT[k].coeff;
+      var contrib = (g[k].hours * coeff).toFixed(2);
+      var cname = k==='investment'?'增值':k==='dividend'?'社交':k==='maintenance'?'维护':k==='expense'?'娱乐':k==='depreciation'?'消耗':k==='liability'?'损耗':'杂务';
+      algoRows += '<div class="algo-row"><span>' + cname + ' ' + g[k].hours.toFixed(1) + 'h × ' + coeff + '</span><span>' + (coeff >= 0 ? '+' : '') + contrib + '</span></div>';
+    }
+  });
+  var baseScore = ((avg + 0.5) / 2.3 * 100).toFixed(1);
+  var penalD = dH > 0 ? dH * 5 : 0;
+  var penalL = lH > 0 ? lH * 5 : 0;
+  var bonusI = iH > 0 ? -iH * 2 : 0;
+  var penalS = (sH > 0 && sH < 6) ? (6 - sH) * 5 : 0;
+  var adjustments = '';
+  if (penalD) adjustments += '<div class="algo-row"><span>消耗惩罚 (' + dH.toFixed(1) + 'h × -5)</span><span>-' + penalD + '</span></div>';
+  if (penalL) adjustments += '<div class="algo-row"><span>损耗惩罚 (' + lH.toFixed(1) + 'h × -5)</span><span>-' + penalL + '</span></div>';
+  if (bonusI) adjustments += '<div class="algo-row"><span>增值奖励 (' + iH.toFixed(1) + 'h × +2)</span><span>+' + (-bonusI) + '</span></div>';
+  if (penalS) adjustments += '<div class="algo-row"><span>睡眠不足 (' + sH.toFixed(1) + 'h, 差 ' + (6-sH).toFixed(1) + 'h)</span><span>-' + penalS + '</span></div>';
+
+  document.getElementById('algoDetails').innerHTML =
+    algoRows +
+    '<div class="algo-row algo-total"><span>加权平均得分</span><span>' + avg.toFixed(3) + '</span></div>' +
+    '<div class="algo-row"><span>基础分 = (' + avg.toFixed(3) + ' + 0.5) / 2.3 × 100</span><span>' + baseScore + '</span></div>' +
+    adjustments +
+    '<div class="algo-row algo-total"><span>最终得分</span><span>' + Math.round(score) + ' 分</span></div>';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('habitName').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
+  loadHabits();
 });
 
 if ('serviceWorker' in navigator) {
