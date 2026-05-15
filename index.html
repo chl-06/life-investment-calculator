@@ -505,7 +505,8 @@
     display: flex; flex-direction: column; animation: popIn 0.2s ease-out;
   }
   .modal-title { font-size: 15px; font-weight: 700; text-align: center; margin-bottom: 12px; }
-  .modal-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .modal-scroll { overflow: auto; -webkit-overflow-scrolling: touch; max-height: 60vh; }
+  .modal-scroll table { min-width: 500px; }
   .modal-table { width: 100%; border-collapse: collapse; font-size: 12px; }
   .modal-table th {
     position: sticky; top: 0; background: #fafaf8;
@@ -1200,20 +1201,23 @@ function loadPlan(id) {
   document.getElementById('cp-rate').value = p.rate;
   document.getElementById('cp-inflation').value = p.inflation;
   document.getElementById('cp-growth').value = p.growth;
-  // Sync range displays
   syncRange('cp-years','cp-years-val',1,'年');
   syncRange('cp-rate','cp-rate-val',0.5,'%');
   syncRange('cp-inflation','cp-inflation-val',0.5,'%');
   syncRange('cp-growth','cp-growth-val',0.5,'%');
   vibrate();
   showToast('已加载「' + p.name + '」');
+  calcCompound();
 }
 
 function deletePlan(id) {
-  var plans = getPlans().filter(function(x) { return x.id !== id; });
-  savePlans(plans);
+  var plans = getPlans();
+  var p = plans.find(function(x) { return x.id === id; });
+  if (p && !confirm('确认删除「' + p.name + '」吗？')) return;
+  savePlans(plans.filter(function(x) { return x.id !== id; }));
   renderPlans();
   vibrate();
+  showToast('已删除');
 }
 
 function renderPlans() {
@@ -1221,9 +1225,13 @@ function renderPlans() {
   var plans = getPlans();
   if (!plans.length) { el.innerHTML = ''; return; }
   el.innerHTML = plans.map(function(p) {
-    return '<div class="plan-item" onclick="loadPlan(\'' + p.id + '\')">' +
+    var r = parseFloat(p.rate) || 0;
+    var y = parseInt(p.years) || 0;
+    var m = parseFloat(p.monthly) || 0;
+    var preview = r + '% · ' + y + '年 · 月投' + formatMoney(m * 12);
+    return '<div class="plan-item" data-id="' + p.id + '" onclick="loadPlan(\'' + p.id + '\')">' +
       '<span class="pi-name">' + escHtml(p.name) + '</span>' +
-      '<span class="pi-detail">' + p.createdAt + '</span>' +
+      '<span class="pi-detail">' + preview + '</span>' +
       '<button class="pi-del" onclick="event.stopPropagation();deletePlan(\'' + p.id + '\')">✕</button></div>';
   }).join('');
 }
@@ -1235,20 +1243,27 @@ function toggleCompare() {
 }
 
 // ===== 复利计算核心 =====
-function calcData(principal, monthly, years, rate, growth) {
+// ===== 复利计算核心（含通胀数据）=====
+function calcData(principal, monthly, years, rate, growth, inflation) {
+  inflation = inflation || 0;
   var annualInvest = monthly * 12;
   var totalPrincipal = principal;
   var nominalTotal = principal;
-  var data = [{ year: 0, principal: principal, gain: 0, nominal: principal }];
+  var data = [{ year: 0, principal: principal, gain: 0, nominal: principal, real: principal, contrib: 0, annualReturn: 0 }];
   for (var y = 1; y <= years; y++) {
-    var contribution = annualInvest * Math.pow(1 + growth, y - 1);
-    totalPrincipal += contribution;
-    nominalTotal = (nominalTotal + contribution) * (1 + rate);
+    var contrib = annualInvest * Math.pow(1 + growth, y - 1);
+    totalPrincipal += contrib;
+    var prevNominal = nominalTotal;
+    nominalTotal = (nominalTotal + contrib) * (1 + rate);
+    var annualReturn = (nominalTotal - totalPrincipal) - ((data[y-1] ? (data[y-1].nominal - data[y-1].principal) : 0));
     data.push({
       year: y,
       principal: totalPrincipal,
       gain: Math.max(0, nominalTotal - totalPrincipal),
-      nominal: nominalTotal
+      nominal: nominalTotal,
+      real: nominalTotal / Math.pow(1 + inflation, y),
+      contrib: contrib,
+      annualReturn: Math.max(0, annualReturn)
     });
   }
   return data;
@@ -1264,12 +1279,12 @@ function calcCompound() {
   var growth = parseFloat(document.getElementById('cp-growth').value) / 100 || 0;
   var cmpOn = document.getElementById('cmpToggle').checked;
 
-  var data = calcData(principal, monthly, years, rate, growth);
+  var data = calcData(principal, monthly, years, rate, growth, inflation);
   _cpData = data;
   _cpData2 = null;
 
   var last = data[data.length - 1];
-  var realVal = last.nominal / Math.pow(1 + inflation, years);
+  var realVal = last.real;
 
   document.getElementById('compoundResults').style.display = 'block';
 
@@ -1288,10 +1303,10 @@ function calcCompound() {
   var cmpEl = document.getElementById('cpCmpResult');
   if (cmpOn) {
     var rate2 = parseFloat(document.getElementById('cp-rate2').value) / 100 || 0;
-    var data2 = calcData(principal, monthly, years, rate2, growth);
+    var data2 = calcData(principal, monthly, years, rate2, growth, inflation);
     _cpData2 = data2;
     var last2 = data2[data2.length - 1];
-    var real2 = last2.nominal / Math.pow(1 + inflation, years);
+    var real2 = last2.real;
     cmpEl.style.display = 'grid';
     cmpEl.innerHTML =
       '<div class="cmp-col"><div class="col-title" style="background:#f2f5ee;color:#7a9a5a;">方案A ' + (rate*100).toFixed(1) + '%</div>' +
@@ -1322,18 +1337,38 @@ function formatMoney(n) {
 function showAnnualTable() {
   var data = _cpData;
   if (!data || data.length < 2) { showToast('请先计算复利'); return; }
+  var principal = parseFloat(document.getElementById('cp-principal').value) || 0;
+  var inflation = parseFloat(document.getElementById('cp-inflation').value) / 100 || 0;
   var rows = '';
+  var tContrib = 0, tReturn = 0;
+
   data.forEach(function(d, i) {
-    var contrib = i === 0 ? 0 : (d.principal - (data[i-1] ? data[i-1].principal : 0));
-    var annualGain = i === 0 ? 0 : (d.nominal - d.principal) - ((data[i-1] ? data[i-1].nominal - data[i-1].principal : 0));
-    rows += '<tr>' +
-      '<td>' + d.year + '</td>' +
-      '<td>' + (i===0?'—':formatMoney(contrib)) + '</td>' +
-      '<td>' + (i===0?'—':formatMoney(Math.max(0,annualGain))) + '</td>' +
-      '<td>' + formatMoney(d.principal) + '</td>' +
-      '<td>' + formatMoney(Math.max(0,d.gain)) + '</td>' +
-      '<td>' + formatMoney(d.nominal) + '</td></tr>';
+    if (i === 0) {
+      rows += '<tr><td>' + d.year + '</td><td>—</td><td>—</td><td>—</td><td>' + formatMoney(d.principal) + '</td><td>—</td><td>' + formatMoney(d.nominal) + '</td><td>' + formatMoney(d.real) + '</td></tr>';
+    } else {
+      var retRate = d.principal > 0 ? ((d.annualReturn / (d.principal - d.contrib)) * 100) : 0;
+      rows += '<tr>' +
+        '<td>' + d.year + '</td>' +
+        '<td>' + formatMoney(d.contrib) + '</td>' +
+        '<td style="color:' + (d.annualReturn > 0 ? '#7a9a5a' : '#b85a5a') + ';">' + formatMoney(d.annualReturn) + '</td>' +
+        '<td style="color:' + (retRate >= 0 ? '#7a9a5a' : '#b85a5a) + ';">' + (retRate > 0 ? '+' : '') + retRate.toFixed(1) + '%</td>' +
+        '<td>' + formatMoney(d.principal) + '</td>' +
+        '<td style="color:#D4A373;">' + formatMoney(d.gain) + '</td>' +
+        '<td>' + formatMoney(d.nominal) + '</td>' +
+        '<td style="color:' + (d.real >= principal ? '#7a9a5a' : '#b85a5a') + ';">' + formatMoney(d.real) + '</td></tr>';
+      tContrib += d.contrib;
+      tReturn += d.annualReturn;
+    }
   });
+
+  var last = data[data.length - 1];
+  rows += '<tr>' +
+    '<td>合计</td><td>' + formatMoney(tContrib) + '</td>' +
+    '<td style="color:#7a9a5a;">' + formatMoney(tReturn) + '</td><td>—</td>' +
+    '<td>' + formatMoney(last.principal) + '</td>' +
+    '<td style="color:#D4A373;">' + formatMoney(last.gain) + '</td>' +
+    '<td>' + formatMoney(last.nominal) + '</td>' +
+    '<td style="color:' + (last.real >= principal ? '#7a9a5a' : '#b85a5a') + ';">' + formatMoney(last.real) + '</td></tr>';
 
   var ov = document.createElement('div');
   ov.className = 'modal-overlay';
@@ -1344,7 +1379,7 @@ function showAnnualTable() {
     '<div class="modal-title">📋 年度明细表</div>' +
     '<div class="modal-scroll">' +
     '<table class="modal-table"><thead><tr>' +
-    '<th>年份</th><th>投入本金</th><th>当年收益</th><th>累计本金</th><th>累计收益</th><th>总资产</th>' +
+    '<th>年份</th><th>投入</th><th>当年收益</th><th>收益率</th><th>累计本金</th><th>累计收益</th><th>总资产</th><th>实际购买力</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
     '<button class="modal-close" onclick="closeModal()">关闭</button></div>';
   document.body.appendChild(ov);
