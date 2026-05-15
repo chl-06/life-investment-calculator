@@ -1,0 +1,20 @@
+{
+  "name": "人生 ROI 计算器",
+  "short_name": "人生 ROI",
+  "description": "用投资回报率的语气严肃分析你每天的时间配置，荒诞又扎心",
+  "start_url": "/life-investment-calculator/",
+  "scope": "/life-investment-calculator/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f0f2f5",
+  "theme_color": "#667eea",
+  "categories": ["lifestyle", "utilities"],
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
