@@ -706,25 +706,12 @@ function initAudio() {
   try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
 }
 
-function vibrate() {
-  // Try hardware vibration first (Android)
-  if (navigator.vibrate) { try { navigator.vibrate(15); } catch(e) {} return; }
-  // Fallback: Web Audio API click sound
-  try {
-    initAudio();
-    if (audioCtx && audioCtx.state === 'running') {
-      var osc = audioCtx.createOscillator();
-      var gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.frequency.value = 800;
-      osc.type = 'sine';
-      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
-      osc.start(audioCtx.currentTime);
-      osc.stop(audioCtx.currentTime + 0.06);
-    }
-  } catch(e) {}
+// 封装震动函数
+function vibrate(ms) {
+  ms = ms || 10;
+  if ("vibrate" in navigator) {
+    try { navigator.vibrate(ms); } catch(e) {}
+  }
 }
 
 // Init audio context on first user tap (required by browsers)
@@ -1118,8 +1105,7 @@ function syncRange(inputId, displayId, step, unit) {
   var dp = document.getElementById(displayId);
   if (step >= 1) dp.textContent = parseInt(el.value) + ' ' + unit;
   else dp.textContent = parseFloat(el.value).toFixed(1) + unit;
-  // Throttled vibration
-  if (!_vibeTimer) { _vibeTimer = setTimeout(function() { _vibeTimer = null; }, 80); vibrate(); }
+  vibrate(15);
 }
 
 function switchTab(tab) {
