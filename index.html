@@ -481,6 +481,40 @@ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow
 .algo-details .algo-row { display: flex; justify-content: space-between; padding: 1px 0; }
 .algo-details .algo-total { border-top: 1px solid var(--border-light); margin-top: 4px; padding-top: 4px; font-weight: 600; color: var(--text-primary); }
 
+.ai-advice-btn {
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 0;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #4A6FA5 0%, #6B8FC4 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--btn-radius);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  letter-spacing: 0.5px;
+}
+.ai-advice-btn:active { opacity: 0.8; }
+.ai-advice-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ai-advice-content {
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: #f0f4fa;
+  border-left: 4px solid #4A6FA5;
+  color: #2c3e50;
+  display: none;
+}
+.ai-advice-content.show { display: block; }
+.ai-advice-content.loading { color: #6B8FC4; border-left-color: #6B8FC4; }
+.ai-advice-content.error { background: #fef2f2; border-left-color: #b85a5a; color: #b85a5a; }
+
 /* ==============================
    CSS Module 10: Plans
    ============================== */
@@ -932,6 +966,8 @@ hr { border: none; border-top: 1px solid var(--border-light); margin: 14px 0; }
       </div>
       <div id="verdictContent"></div>
       <div id="tipsContent"></div>
+      <div id="aiAdviceContent" class="ai-advice-content"></div>
+      <button class="ai-advice-btn" id="aiAdviceBtn" data-click="getAiAdvice">🤖 AI 评价</button>
       <div class="warn-banner" id="warnBanner"></div>
       <button class="algo-toggle" data-click="toggleAlgo">📊 查看评分算法明细</button>
       <div class="algo-details" id="algoDetails"></div>
@@ -1470,6 +1506,8 @@ Actions.reg('clearHabits', () => {
   updateCalcBtn();
   syncHabits();
   document.getElementById('results').classList.remove('show');
+  document.getElementById('aiAdviceContent').className = 'ai-advice-content';
+  document.getElementById('aiAdviceContent').textContent = '';
   Haptics.vibrate(10);
 });
 
@@ -1672,6 +1710,11 @@ Actions.reg('calculate', () => {
   } else {
     warnEl.classList.remove('show');
   }
+
+  // Clear AI advice
+  const aiEl = document.getElementById('aiAdviceContent');
+  aiEl.className = 'ai-advice-content';
+  aiEl.textContent = '';
 
   // Algo details
   let algoHtml = result.algoRows.map(r => '<div class="algo-row"><span>' + r.label + '</span><span>' + r.value + '</span></div>').join('');
@@ -1995,6 +2038,40 @@ Actions.reg('submitFeedback', async (btn) => {
 });
 
 /* ===== About Modal ===== */
+/* ===== AI Advice ===== */
+const DEEPSEEK_KEY = 'sk-b85356b3b2d24d93accc37de1d3a5d8c'; // ← 在此填入你的 DeepSeek API Key
+const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
+Actions.reg('getAiAdvice', async (btn) => {
+  const contentEl = document.getElementById('aiAdviceContent');
+  const habits = Store.get('habits') || [];
+  if (!habits.length) { contentEl.textContent = '请先添加日常行为再获取 AI 评价'; contentEl.className = 'ai-advice-content show error'; return; }
+  if (!DEEPSEEK_KEY) { contentEl.textContent = '请先在代码中配置 DeepSeek API Key（DEEPSEEK_KEY）'; contentEl.className = 'ai-advice-content show error'; return; }
+  btn.disabled = true;
+  btn.textContent = '🤖 AI 思考中…';
+  contentEl.textContent = '🤖 AI 正在分析你的一天…';
+  contentEl.className = 'ai-advice-content show loading';
+  const habitLines = habits.map(h => `${h.name} ${h.hours}h（${h.label || h.type}）`).join('；');
+  const prompt = `你是一个人生投资顾问。基于以下用户的一天行为记录，给出一句简短（不超过50字）的中文评价和建议。要求：一针见血、有洞察力、略带幽默感，不需要任何格式。\n行为：${habitLines}`;
+  try {
+    const res = await fetch(DEEPSEEK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_KEY },
+      body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: prompt }], max_tokens: 100, temperature: 0.8 })
+    });
+    if (!res.ok) { throw new Error('API 请求失败 (' + res.status + ')'); }
+    const json = await res.json();
+    const reply = json.choices?.[0]?.message?.content?.trim() || '暂无评价';
+    contentEl.textContent = '🤖 ' + reply;
+    contentEl.className = 'ai-advice-content show';
+  } catch (e) {
+    contentEl.textContent = '⚠️ AI 评价暂时不可用：' + e.message;
+    contentEl.className = 'ai-advice-content show error';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🤖 AI 评价';
+  }
+});
+
 Actions.reg('showAbout', () => {
   openModal(
     '<div class="modal-box">' +
