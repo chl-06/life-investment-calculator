@@ -11,8 +11,6 @@
 <link rel="icon" href="/life-investment-calculator/icons/icon.svg?v=5" type="image/svg+xml">
 <title>人生 ROI 计算器</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&display=swap');
-
   :root {
     --paper-bg: #FAF9F6;
     --card-bg: #FFFFFF;
@@ -417,12 +415,12 @@
   }
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none; appearance: none;
-    width: 20px; height: 20px; border-radius: 50%;
+    width: 26px; height: 26px; border-radius: 50%;
     background: var(--accent-brown-start); cursor: pointer;
     border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   }
   input[type="range"]::-moz-range-thumb {
-    width: 20px; height: 20px; border-radius: 50%;
+    width: 26px; height: 26px; border-radius: 50%;
     background: var(--accent-brown-start); cursor: pointer;
     border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   }
@@ -453,12 +451,12 @@
   }
 
   /* ===== No select / safe area ===== */
-  body { -webkit-touch-callout: none; overscroll-behavior: none; }
+  body { -webkit-touch-callout: none; overscroll-behavior: auto; }
   body { padding-bottom: env(safe-area-inset-bottom, 16px); }
   input[type="text"], input[type="number"], input[type="range"], canvas, .tag, .plan-item { user-select: auto; -webkit-user-select: auto; }
 
   /* ===== Plans list ===== */
-  .plan-list { margin: 8px 0 10px; max-height: 180px; overflow-y: auto; }
+  .plan-list { margin: 8px 0 10px; max-height: 360px; overflow-y: auto; }
   .plan-list:empty { display: none; }
   .plan-item {
     display: flex; align-items: center; gap: 8px;
@@ -735,23 +733,6 @@ function playClick() {
     osc.stop(audioCtx.currentTime + 0.06);
   } catch(e) {}
 }
-function playClick() {
-  try {
-    initAudio();
-    if (audioCtx && audioCtx.state === 'running') {
-      var osc = audioCtx.createOscillator();
-      var gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.frequency.value = 800;
-      osc.type = 'sine';
-      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
-      osc.start(audioCtx.currentTime);
-      osc.stop(audioCtx.currentTime + 0.06);
-    }
-  } catch(e) {}
-}
 
 // Init audio context on first user tap (required by browsers)
 document.addEventListener('touchstart', function() { initAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
@@ -822,10 +803,10 @@ function parseItem(text) {
   const m = text.match(/^(.+?)\s*([\d.]+)\s*(?:h|小时|时)?$/);
   if (m) {
     let name = m[1].trim();
-    let hours = parseFloat(m[2]);
-    if (name && hours > 0 && hours <= 24) return { name, hours, type: classify(name) };
+    let hours = Math.min(24, Math.max(0.5, parseFloat(m[2])));
+    if (name) return { name, hours, type: classify(name) };
   }
-  return { name: text, hours: curTime, type: classify(text) };
+  return { name: text, hours: Math.min(24, Math.max(0.5, curTime)), type: classify(text) };
 }
 
 function addHabit() {
@@ -959,19 +940,23 @@ function toggleAlgo() {
 
 // ===== 复制结果分享 =====
 function copyResults() {
+  var parts = ['📊 人生 ROI 报告'];
   var score = document.getElementById('scoreNum').textContent;
   var grade = document.getElementById('scoreGrade').textContent;
   var m = document.getElementById('metricGrid').querySelectorAll('.s-value');
   var eff = m[0] ? m[0].textContent : '--';
   var bad = m[1] ? m[1].textContent : '--';
   var yr = m[2] ? m[2].textContent : '--';
-  var txt = '📊 人生 ROI 报告\n' +
-    '评分：' + score + ' | ' + grade + '\n' +
-    '增值效率：' + eff + ' | 不良率：' + bad + '\n' +
-    '年化复利：' + yr + '\n' +
-    '——————————\n' +
-    '人生有风险，活着需谨慎\n' +
-    '→ https://chl-06.github.io/life-investment-calculator/';
+  parts.push('评分：' + score + ' | ' + grade, '增值效率：' + eff + ' | 不良率：' + bad, '年化复利：' + yr);
+
+  // Append compound data if available
+  if (_cpData) {
+    var last = _cpData[_cpData.length - 1];
+    parts.push('——————————', '💰 复利计算', '总资产：' + formatMoney(last.nominal), '实际购买力：' + formatMoney(last.real), '累计本金：' + formatMoney(last.principal), '复利收益：' + formatMoney(last.gain));
+  }
+
+  parts.push('——————————', '人生有风险，活着需谨慎', '→ https://chl-06.github.io/life-investment-calculator/');
+  var txt = parts.join('\n');
 
   // Try clipboard
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1137,8 +1122,6 @@ function calculate() {
 // ===== 复利计算器 =====
 var _cpData = null;
 var _cpData2 = null;
-var _vibeTimer = null;
-
 function syncRange(inputId, displayId, step, unit) {
   var el = document.getElementById(inputId);
   var dp = document.getElementById(displayId);
@@ -1150,6 +1133,7 @@ function syncRange(inputId, displayId, step, unit) {
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab === tab); });
   document.querySelectorAll('.section').forEach(function(s) { s.classList.toggle('active', s.id === 'section-' + tab); });
+  document.querySelector('.subtitle').textContent = tab === 'behavior' ? '用投资逻辑审视你的时间和金钱' : '用复利思维规划你的财富增长';
   vibrate();
   if (tab === 'compound') {
     renderPlans();
@@ -1172,6 +1156,7 @@ function savePlan() {
   var name = document.getElementById('planName').value.trim();
   if (!name) { showToast('请输入方案名称'); return; }
   var plans = getPlans();
+  if (plans.length >= 20) { showToast('最多保存20个方案，请先删除旧方案'); return; }
   var plan = {
     id: Date.now().toString(36),
     name: name,
@@ -1242,7 +1227,6 @@ function toggleCompare() {
   document.getElementById('cmpSection').classList.toggle('show', on);
 }
 
-// ===== 复利计算核心 =====
 // ===== 复利计算核心（含通胀数据）=====
 function calcData(principal, monthly, years, rate, growth, inflation) {
   inflation = inflation || 0;
@@ -1271,12 +1255,12 @@ function calcData(principal, monthly, years, rate, growth, inflation) {
 
 function calcCompound() {
   vibrate();
-  var principal = parseFloat(document.getElementById('cp-principal').value) || 0;
-  var monthly = parseFloat(document.getElementById('cp-monthly').value) || 0;
-  var years = parseInt(document.getElementById('cp-years').value) || 10;
-  var rate = parseFloat(document.getElementById('cp-rate').value) / 100 || 0;
-  var inflation = parseFloat(document.getElementById('cp-inflation').value) / 100 || 0;
-  var growth = parseFloat(document.getElementById('cp-growth').value) / 100 || 0;
+  var principal = Math.max(0, parseFloat(document.getElementById('cp-principal').value) || 0);
+  var monthly = Math.max(0, parseFloat(document.getElementById('cp-monthly').value) || 0);
+  var years = Math.min(50, Math.max(1, parseInt(document.getElementById('cp-years').value) || 10));
+  var rate = Math.min(0.30, Math.max(0, parseFloat(document.getElementById('cp-rate').value) / 100)) || 0;
+  var inflation = Math.min(0.20, Math.max(0, parseFloat(document.getElementById('cp-inflation').value) / 100)) || 0;
+  var growth = Math.min(0.20, Math.max(0, parseFloat(document.getElementById('cp-growth').value) / 100)) || 0;
   var cmpOn = document.getElementById('cmpToggle').checked;
 
   var data = calcData(principal, monthly, years, rate, growth, inflation);
@@ -1351,7 +1335,7 @@ function showAnnualTable() {
         '<td>' + d.year + '</td>' +
         '<td>' + formatMoney(d.contrib) + '</td>' +
         '<td style="color:' + (d.annualReturn > 0 ? '#7a9a5a' : '#b85a5a') + ';">' + formatMoney(d.annualReturn) + '</td>' +
-        '<td style="color:' + (retRate >= 0 ? '#7a9a5a' : '#b85a5a) + ';">' + (retRate > 0 ? '+' : '') + retRate.toFixed(1) + '%</td>' +
+        '<td style="color:' + (retRate >= 0 ? '#7a9a5a' : '#b85a5a') + ';">' + (retRate > 0 ? '+' : '') + retRate.toFixed(1) + '%</td>' +
         '<td>' + formatMoney(d.principal) + '</td>' +
         '<td style="color:#D4A373;">' + formatMoney(d.gain) + '</td>' +
         '<td>' + formatMoney(d.nominal) + '</td>' +
@@ -1381,11 +1365,31 @@ function showAnnualTable() {
     '<table class="modal-table"><thead><tr>' +
     '<th>年份</th><th>投入</th><th>当年收益</th><th>收益率</th><th>累计本金</th><th>累计收益</th><th>总资产</th><th>实际购买力</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
-    '<button class="modal-close" onclick="closeModal()">关闭</button></div>';
+    '<div style="display:flex;gap:6px;margin-top:12px;"><button class="modal-close" style="flex:1;margin:0;" onclick="closeModal()">关闭</button><button class="modal-close" style="flex:1;margin:0;background:#f2f5ee;color:#7a9a5a;" onclick="exportCSV()">📥 导出CSV</button></div></div>';
   document.body.appendChild(ov);
 }
 
-function closeModal() {
+function exportCSV() {
+  var data = _cpData;
+  if (!data || data.length < 2) return;
+  var rows = [['年份','投入','当年收益','收益率%','累计本金','累计收益','总资产','实际购买力']];
+  data.forEach(function(d, i) {
+    if (i === 0) {
+      rows.push([d.year, 0, 0, 0, d.principal, 0, d.nominal, d.real]);
+    } else {
+      var retRate = d.principal > 0 ? ((d.annualReturn / (d.principal - d.contrib)) * 100) : 0;
+      rows.push([d.year, d.contrib, d.annualReturn, Math.round(retRate * 10) / 10, d.principal, d.gain, d.nominal, d.real]);
+    }
+  });
+  var csv = rows.map(function(r) { return r.join(','); }).join('\n');
+  var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '年度明细_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('CSV已导出');
+}
   var el = document.getElementById('modalOv');
   if (el) el.remove();
 }
@@ -1479,7 +1483,7 @@ function drawChart(data, data2) {
 
     // Legend
     ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = '10px sans-serif';
-    ctx.fillStyle = 'rgba(165,165,141,0.30)2'; ctx.fillRect(w - 112, 6, 10, 10);
+    ctx.fillStyle = 'rgba(165,165,141,0.30)'; ctx.fillRect(w - 112, 6, 10, 10);
     ctx.fillStyle = '#A5A58D'; ctx.fillText('累计本金', w - 98, 6);
     ctx.fillStyle = 'rgba(212,163,115,0.25)'; ctx.fillRect(w - 42, 6, 10, 10);
     ctx.fillStyle = '#D4A373'; ctx.fillText('复利收益', w - 28, 6);
@@ -1514,13 +1518,15 @@ function drawChart(data, data2) {
 
     // Legend with comparison
     ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = '10px sans-serif';
-    var lx = w - 140, ly = 6;
+    var lx = w - 150, ly = 6;
+    var r1 = document.getElementById('cp-rate-val').textContent;
+    var r2 = document.getElementById('cp-rate2-val').textContent;
     ctx.fillStyle = 'rgba(165,165,141,0.30)'; ctx.fillRect(lx, ly, 10, 10);
     ctx.fillStyle = '#A5A58D'; ctx.fillText('本金', lx+14, ly);
     ctx.fillStyle = 'rgba(212,163,115,0.25)'; ctx.fillRect(lx+48, ly, 10, 10);
-    ctx.fillStyle = '#D4A373'; ctx.fillText('方案A', lx+62, ly);
+    ctx.fillStyle = '#D4A373'; ctx.fillText('A ' + r1, lx+62, ly);
     ctx.fillStyle = '#b85a5a'; ctx.fillRect(lx+100, ly, 10, 10);
-    ctx.fillStyle = '#b85a5a'; ctx.fillText('方案B', lx+114, ly);
+    ctx.fillStyle = '#b85a5a'; ctx.fillText('B ' + r2, lx+114, ly);
   }
 }
 
