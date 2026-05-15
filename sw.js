@@ -1,4 +1,4 @@
-const CACHE = 'life-roi-v2';
+const CACHE = 'life-roi-v3';
 const FILES = [
   './',
   './index.html',
