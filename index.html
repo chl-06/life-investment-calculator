@@ -376,15 +376,37 @@
 </div>
 
 <script>
+// Audio click context (singleton, created on first user interaction)
+var audioCtx = null;
+function initAudio() {
+  if (audioCtx) return;
+  try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+}
+
 function vibrate() {
+  // Try hardware vibration first (Android)
+  if (navigator.vibrate) { try { navigator.vibrate(15); } catch(e) {} return; }
+  // Fallback: Web Audio API click sound
   try {
-    if (navigator.vibrate) navigator.vibrate(20);
-    // HarmonyOS fallback: try with pattern
-    else if (navigator.webkitVibrate) navigator.webkitVibrate(20);
-    // Last attempt for older WebView
-    else if (window.Vibration) window.Vibration.vibrate(20);
+    initAudio();
+    if (audioCtx && audioCtx.state === 'running') {
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = 800;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.06);
+    }
   } catch(e) {}
 }
+
+// Init audio context on first user tap (required by browsers)
+document.addEventListener('touchstart', function() { initAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+document.addEventListener('click', function() { initAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
 
 // ===== 自动分类 =====
 function classify(name) {
