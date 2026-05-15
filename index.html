@@ -116,13 +116,16 @@
     color: white; cursor: pointer; font-weight: 600;
     letter-spacing: 1.5px; text-transform: uppercase;
     font-size: 13px; font-family: inherit;
-    transition: all 0.25s;
+    transition: all 0.2s;
     box-shadow: 0 4px 14px rgba(212,163,115,0.2);
     -webkit-tap-highlight-color: transparent;
+    position: relative; overflow: hidden;
+    user-select: none; -webkit-user-select: none;
   }
   button:active {
-    transform: translateY(1px);
+    transform: scale(0.96);
     box-shadow: 0 2px 8px rgba(212,163,115,0.15);
+    background: linear-gradient(135deg, var(--accent-brown-end) 0%, var(--accent-brown-start) 100%);
   }
   button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
   .btn-full { width: 100%; }
@@ -374,9 +377,13 @@
 
 <script>
 function vibrate() {
-  if (window.navigator && window.navigator.vibrate) {
-    window.navigator.vibrate(15);
-  }
+  try {
+    if (navigator.vibrate) navigator.vibrate(20);
+    // HarmonyOS fallback: try with pattern
+    else if (navigator.webkitVibrate) navigator.webkitVibrate(20);
+    // Last attempt for older WebView
+    else if (window.Vibration) window.Vibration.vibrate(20);
+  } catch(e) {}
 }
 
 // ===== 自动分类 =====
@@ -543,11 +550,6 @@ function calculate() {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('habitName').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
 });
-
-// Touch vibration for all buttons — add vibrate on touchend
-document.addEventListener('touchend', function(e) {
-  if (e.target.closest('button')) vibrate();
-}, { passive: true });
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/life-investment-calculator/sw.js');
