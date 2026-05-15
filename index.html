@@ -334,7 +334,7 @@
 
   <!-- Input -->
   <div class="input-row">
-    <input type="text" id="habitName" placeholder="如：刷短视频、健身、上班..." maxlength="20">
+    <input type="text" id="habitName" placeholder='例如：健身1h, 睡觉7h, 上班8小时...' maxlength="100">
     <div class="time-picker">
       <button onclick="adjTime(-0.5)">−</button>
       <span id="timeDisplay">1</span>
@@ -429,19 +429,43 @@ const KEYS = Object.keys(CAT);
 let habits = [];
 let curTime = 1;
 
-function adjTime(d) { curTime = Math.max(0.5, Math.min(16, curTime + d)); document.getElementById('timeDisplay').textContent = curTime; }
+function v() { try { navigator.vibrate && navigator.vibrate(10); } catch(e) {} }
+
+function adjTime(d) { curTime = Math.max(0.5, Math.min(16, curTime + d)); document.getElementById('timeDisplay').textContent = curTime; v(); }
+
+function parseItem(text) {
+  text = text.trim();
+  if (!text) return null;
+  // Try to extract time: "健身1小时", "睡觉 7h", "上班 8小时", "学习2.5h"
+  const m = text.match(/^(.+?)\s*([\d.]+)\s*(?:h|小时|时)?$/);
+  if (m) {
+    let name = m[1].trim();
+    let hours = parseFloat(m[2]);
+    if (name && hours > 0 && hours <= 24) return { name, hours, type: classify(name) };
+  }
+  // Fallback: treat whole text as name
+  return { name: text, hours: curTime, type: classify(text) };
+}
 
 function addHabit() {
   const el = document.getElementById('habitName');
-  const name = el.value.trim();
-  if (!name) return;
-  habits.push({ name, hours: curTime, type: classify(name) });
+  const raw = el.value.trim();
+  if (!raw) return;
+
+  // Batch input: split by comma, Chinese comma, newline, semicolon
+  const items = raw.split(/[,，、;\n]+/).map(s => s.trim()).filter(Boolean);
+  let added = 0;
+  items.forEach(item => {
+    const parsed = parseItem(item);
+    if (parsed) { habits.push(parsed); added++; }
+  });
+
   el.value = ''; el.focus();
-  render(); enable();
+  if (added) { render(); enable(); v(); }
 }
 
-function removeHabit(i) { habits.splice(i, 1); render(); enable(); }
-function clearHabits() { if (habits.length) { habits = []; render(); enable(); } }
+function removeHabit(i) { habits.splice(i, 1); render(); enable(); v(); }
+function clearHabits() { if (habits.length) { habits = []; render(); enable(); v(); } }
 
 function render() {
   document.getElementById('tagList').innerHTML = habits.map((h, i) => {
@@ -462,11 +486,12 @@ const PRESETS = {
 
 function loadPreset(name) {
   habits = (PRESETS[name]||[]).map(d => ({ name:d[0], hours:d[1], type:classify(d[0]) }));
-  render(); enable(); calculate();
+  render(); enable(); calculate(); v();
 }
 
 function calculate() {
   if (!habits.length) return;
+  v();
   document.getElementById('results').style.display = 'block';
   setTimeout(() => document.getElementById('results').scrollIntoView({ behavior:'smooth' }), 50);
 
@@ -540,7 +565,13 @@ function calculate() {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('habitName').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
+  document.getElementById('habitName').addEventListener('focus', () => { try { navigator.vibrate && navigator.vibrate(5); } catch(e) {} });
 });
+
+// Add vibration to all buttons with onclick
+document.addEventListener('click', function(e) {
+  if (e.target.closest('button')) { try { navigator.vibrate && navigator.vibrate(8); } catch(e) {} }
+}, false);
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/life-investment-calculator/sw.js');
