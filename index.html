@@ -386,6 +386,72 @@
   }
   .copy-toast.show { opacity: 1; }
 
+  /* ===== Tab system ===== */
+  .tab-bar {
+    display: flex; gap: 0; margin-bottom: 24px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+  .tab {
+    flex: 1; padding: 10px 0; text-align: center;
+    background: none; color: var(--text-secondary); box-shadow: none;
+    text-transform: none; letter-spacing: 0; font-size: 13px; font-weight: 500;
+    border: none; border-bottom: 2px solid transparent;
+    margin-bottom: -2px; border-radius: 0;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.2s;
+  }
+  .tab:active { transform: none; box-shadow: none; }
+  .tab.active {
+    color: var(--accent-brown-start); border-bottom-color: var(--accent-brown-start);
+    font-weight: 700;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ===== Range slider ===== */
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 5px; border-radius: 3px;
+    background: #eee; outline: none; padding: 0;
+    border: none; box-shadow: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent-brown-start); cursor: pointer;
+    border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent-brown-start); cursor: pointer;
+    border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .range-label {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .range-label .r-val {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px; font-weight: 700; color: var(--text-primary);
+  }
+
+  /* ===== Number input ===== */
+  input[type="number"] { width: 100%; padding: 10px 12px; }
+
+  /* ===== Compound result grid ===== */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+
+  /* ===== Canvas chart ===== */
+  .chart-wrap {
+    background: #fafaf8; border-radius: 6px; padding: 8px; margin-top: 10px;
+  }
+  .chart-wrap canvas { width: 100%; height: auto; display: block; }
+
+  /* ===== Disclaimer ===== */
+  .disclaimer {
+    text-align: center; font-size: 10px;
+    color: #ccc; margin-top: 8px; line-height: 1.6;
+  }
+
   @media (max-width: 480px) {
     body { padding: 20px 12px; }
     .container { padding: 28px 20px; }
@@ -400,67 +466,133 @@
 <div class="container">
 
   <h1>人生 ROI</h1>
-  <div class="subtitle">录入每日行为，系统自动分析时间投资回报率</div>
+  <div class="subtitle">用投资逻辑审视你的时间和金钱</div>
 
-  <div class="input-group">
-    <label>📌 日常行为</label>
-    <div class="input-row">
-      <input type="text" id="habitName" placeholder='例如：健身1h, 睡觉7h, 上班8小时, 刷手机2h' maxlength="120">
-      <div class="time-picker">
-        <button onclick="adjTime(-0.5)">−</button>
-        <span id="timeDisplay">1</span>
-        <button onclick="adjTime(0.5)">+</button>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="behavior" onclick="switchTab('behavior')">⏱ 行为ROI</button>
+    <button class="tab" data-tab="compound" onclick="switchTab('compound')">💰 复利计算</button>
+  </div>
+
+  <!-- ===== 行为 ROI 分析 ===== -->
+  <div id="section-behavior" class="section active">
+    <div class="input-group">
+      <label>📌 日常行为</label>
+      <div class="input-row">
+        <input type="text" id="habitName" placeholder='例如：健身1h, 睡觉7h, 上班8小时, 刷手机2h' maxlength="120">
+        <div class="time-picker">
+          <button onclick="adjTime(-0.5)">−</button>
+          <span id="timeDisplay">1</span>
+          <button onclick="adjTime(0.5)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button onclick="addHabit()">+ 添加</button>
+      <button class="btn-ghost" onclick="clearHabits()">清空</button>
+    </div>
+
+    <div class="tag-list" id="tagList"></div>
+
+    <div class="preset-row">
+      <button class="preset-btn" onclick="loadPreset('打工人')">打工人</button>
+      <button class="preset-btn" onclick="loadPreset('卷王')">卷王</button>
+      <button class="preset-btn" onclick="loadPreset('躺平')">躺平</button>
+      <button class="preset-btn" onclick="loadPreset('自律达人')">自律达人</button>
+      <button class="preset-btn" onclick="loadPreset('人生赢家')">人生赢家</button>
+    </div>
+
+    <button class="btn-full btn-calc" id="calcBtn" onclick="calculate()" disabled>计算投资回报率</button>
+
+    <div id="results" class="result-section">
+      <div class="result-box">
+        <div class="result-sub" id="scoreGrade">评分</div>
+        <div class="result-main" id="scoreNum">--</div>
+      </div>
+      <div class="grid-3" id="metricGrid"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div class="panel" style="margin:0;">
+          <div class="panel-title">⏳ 时间分配</div>
+          <div id="allocContent"><div style="color:#ccc;font-size:12px;text-align:center;padding:8px;">暂无数据</div></div>
+        </div>
+        <div class="panel" style="margin:0;">
+          <div class="panel-title">⚠️ 风险</div>
+          <div id="riskContent"><div style="color:#ccc;font-size:12px;text-align:center;padding:8px;">暂无数据</div></div>
+        </div>
+      </div>
+      <div id="verdictContent"></div>
+      <div id="tipsContent"></div>
+      <div class="warn-banner" id="warnBanner"></div>
+      <button class="algo-toggle" onclick="toggleAlgo()">📊 查看评分算法明细</button>
+      <div class="algo-details" id="algoDetails"></div>
+      <button class="share-btn" onclick="copyResults()">📋 复制结果分享</button>
+    </div>
+  </div>
+
+  <!-- ===== 复利计算器 ===== -->
+  <div id="section-compound" class="section">
+
+    <div class="input-group">
+      <label>💰 初始本金（元）</label>
+      <input type="number" id="cp-principal" value="100000" min="0" step="10000">
+    </div>
+
+    <div class="input-group">
+      <label>📅 每月定投（元）</label>
+      <input type="number" id="cp-monthly" value="5000" min="0" step="500">
+    </div>
+
+    <div class="input-group">
+      <div class="range-label">
+        <label>📆 投资年限</label>
+        <span class="r-val" id="cp-years-val">10 年</span>
+      </div>
+      <input type="range" id="cp-years" value="10" min="1" max="50" step="1" oninput="syncRange('cp-years','cp-years-val',1,'年')">
+    </div>
+
+    <div class="input-group">
+      <div class="range-label">
+        <label>📈 年化收益率</label>
+        <span class="r-val" id="cp-rate-val">8.0%</span>
+      </div>
+      <input type="range" id="cp-rate" value="8" min="0" max="30" step="0.5" oninput="syncRange('cp-rate','cp-rate-val',0.5,'%')">
+    </div>
+
+    <div class="input-group">
+      <div class="range-label">
+        <label>📉 通货膨胀率</label>
+        <span class="r-val" id="cp-inflation-val">3.0%</span>
+      </div>
+      <input type="range" id="cp-inflation" value="3" min="0" max="20" step="0.5" oninput="syncRange('cp-inflation','cp-inflation-val',0.5,'%')">
+    </div>
+
+    <div class="input-group">
+      <div class="range-label">
+        <label>📊 年投增长率</label>
+        <span class="r-val" id="cp-growth-val">0.0%</span>
+      </div>
+      <input type="range" id="cp-growth" value="0" min="0" max="20" step="0.5" oninput="syncRange('cp-growth','cp-growth-val',0.5,'%')">
+    </div>
+
+    <button class="btn-full" onclick="calcCompound()">计算复利</button>
+
+    <div id="compoundResults" style="display:none">
+      <div class="grid-2">
+        <div class="stat-box"><div class="s-label">名义总资产</div><div class="s-value" id="cp-nominal">--</div></div>
+        <div class="stat-box"><div class="s-label">实际购买力</div><div class="s-value" id="cp-real">--</div></div>
+        <div class="stat-box"><div class="s-label">累计本金</div><div class="s-value" id="cp-principalOut">--</div></div>
+        <div class="stat-box"><div class="s-label">复利收益</div><div class="s-value" id="cp-gain">--</div></div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartCanvas" width="400" height="240"></canvas>
       </div>
     </div>
   </div>
 
-  <div class="btn-row">
-    <button onclick="addHabit()">+ 添加</button>
-    <button class="btn-ghost" onclick="clearHabits()">清空</button>
+  <div class="footer">
+    人生有风险，活着需谨慎 · 仅供娱乐
+    <div class="disclaimer">本结果不构成任何投资建议，仅为教育娱乐用途。投资有风险，决策需谨慎。</div>
   </div>
-
-  <div class="tag-list" id="tagList"></div>
-
-  <div class="preset-row">
-    <button class="preset-btn" onclick="loadPreset('打工人')">打工人</button>
-    <button class="preset-btn" onclick="loadPreset('卷王')">卷王</button>
-    <button class="preset-btn" onclick="loadPreset('躺平')">躺平</button>
-    <button class="preset-btn" onclick="loadPreset('自律达人')">自律达人</button>
-    <button class="preset-btn" onclick="loadPreset('人生赢家')">人生赢家</button>
-  </div>
-
-  <button class="btn-full btn-calc" id="calcBtn" onclick="calculate()" disabled>计算投资回报率</button>
-
-  <!-- Results -->
-  <div id="results" class="result-section">
-
-    <div class="result-box">
-      <div class="result-sub" id="scoreGrade">评分</div>
-      <div class="result-main" id="scoreNum">--</div>
-    </div>
-
-    <div class="grid-3" id="metricGrid"></div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-      <div class="panel" style="margin:0;">
-        <div class="panel-title">⏳ 时间分配</div>
-        <div id="allocContent"><div style="color:#ccc;font-size:12px;text-align:center;padding:8px;">暂无数据</div></div>
-      </div>
-      <div class="panel" style="margin:0;">
-        <div class="panel-title">⚠️ 风险</div>
-        <div id="riskContent"><div style="color:#ccc;font-size:12px;text-align:center;padding:8px;">暂无数据</div></div>
-      </div>
-    </div>
-
-    <div id="verdictContent"></div>
-    <div id="tipsContent"></div>
-    <div class="warn-banner" id="warnBanner"></div>
-    <button class="algo-toggle" onclick="toggleAlgo()">📊 查看评分算法明细</button>
-    <div class="algo-details" id="algoDetails"></div>
-    <button class="share-btn" onclick="copyResults()">📋 复制结果分享</button>
-  </div>
-
-  <div class="footer">人生有风险，活着需谨慎 · 仅供娱乐</div>
 </div>
 
 <script>
@@ -873,13 +1005,201 @@ function calculate() {
     '<div class="algo-row algo-total"><span>最终得分</span><span>' + Math.round(score) + ' 分</span></div>';
 }
 
+// ===== 复利计算器 =====
+var _cpData = null;
+
+function syncRange(inputId, displayId, step, unit) {
+  var el = document.getElementById(inputId);
+  var dp = document.getElementById(displayId);
+  if (step >= 1) dp.textContent = parseInt(el.value) + ' ' + unit;
+  else dp.textContent = parseFloat(el.value).toFixed(1) + unit;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab === tab); });
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.toggle('active', s.id === 'section-' + tab); });
+  vibrate();
+  if (tab === 'compound') {
+    setTimeout(function() {
+      var c = document.getElementById('chartCanvas');
+      if (c && _cpData) drawChart(_cpData);
+    }, 100);
+  }
+}
+
+function calcCompound() {
+  vibrate();
+  var principal = parseFloat(document.getElementById('cp-principal').value) || 0;
+  var monthly = parseFloat(document.getElementById('cp-monthly').value) || 0;
+  var years = parseInt(document.getElementById('cp-years').value) || 10;
+  var rate = parseFloat(document.getElementById('cp-rate').value) / 100 || 0;
+  var inflation = parseFloat(document.getElementById('cp-inflation').value) / 100 || 0;
+  var growth = parseFloat(document.getElementById('cp-growth').value) / 100 || 0;
+
+  var annualInvest = monthly * 12;
+  var totalPrincipal = principal;
+  var nominalTotal = principal;
+  var data = [{ year: 0, principal: principal, gain: 0, nominal: principal }];
+
+  for (var y = 1; y <= years; y++) {
+    var contribution = annualInvest * Math.pow(1 + growth, y - 1);
+    totalPrincipal += contribution;
+    nominalTotal = (nominalTotal + contribution) * (1 + rate);
+    data.push({
+      year: y,
+      principal: totalPrincipal,
+      gain: Math.max(0, nominalTotal - totalPrincipal),
+      nominal: nominalTotal
+    });
+  }
+
+  var last = data[data.length - 1];
+  var realVal = last.nominal / Math.pow(1 + inflation, years);
+  _cpData = data;
+
+  document.getElementById('compoundResults').style.display = 'block';
+  document.getElementById('cp-nominal').textContent = formatMoney(last.nominal);
+  document.getElementById('cp-nominal').style.color = last.nominal >= principal ? '#7a9a5a' : '#b85a5a';
+  document.getElementById('cp-real').textContent = formatMoney(realVal);
+  document.getElementById('cp-real').style.color = realVal >= principal ? '#7a9a5a' : '#b85a5a';
+  document.getElementById('cp-principalOut').textContent = formatMoney(last.principal);
+  document.getElementById('cp-principalOut').style.color = '#5a8aaa';
+  document.getElementById('cp-gain').textContent = formatMoney(Math.max(0, last.gain));
+  document.getElementById('cp-gain').style.color = last.gain > 0 ? '#D4A373' : '#b85a5a';
+
+  setTimeout(function() {
+    drawChart(data);
+    document.getElementById('compoundResults').scrollIntoView({ behavior: 'smooth' });
+  }, 50);
+}
+
+function formatMoney(n) {
+  if (Math.abs(n) >= 1e8) return (n / 1e8).toFixed(2) + ' 亿';
+  if (Math.abs(n) >= 1e4) return (n / 1e4).toFixed(2) + ' 万';
+  return '¥' + n.toFixed(2);
+}
+
+function drawChart(data) {
+  var canvas = document.getElementById('chartCanvas');
+  if (!canvas) return;
+  var wrap = canvas.parentElement;
+  var wrapW = wrap.clientWidth || 340;
+  var dpr = window.devicePixelRatio || 1;
+  var w = Math.max(200, wrapW);
+  var h = 240;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  var P = { top: 20, right: 16, bottom: 28, left: 50 };
+  var cw = w - P.left - P.right;
+  var ch = h - P.top - P.bottom;
+
+  // Find max
+  var maxVal = 0;
+  data.forEach(function(d) { if (d.nominal > maxVal) maxVal = d.nominal; });
+  maxVal = Math.ceil(maxVal * 1.15 / Math.pow(10, Math.floor(Math.log10(maxVal||1)))) * Math.pow(10, Math.floor(Math.log10(maxVal||1)));
+  if (maxVal <= 0) maxVal = 1;
+
+  var xf = function(i) { return P.left + (i / (data.length - 1)) * cw; };
+  var yf = function(v) { return P.top + ch - (v / maxVal) * ch; };
+
+  // Clear
+  ctx.clearRect(0, 0, w, h);
+
+  // Grid lines + Y labels
+  ctx.fillStyle = '#bbb';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (var i = 0; i <= 4; i++) {
+    var v = (maxVal / 4) * i;
+    var y = yf(v);
+    ctx.strokeStyle = '#f0f0f0';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(P.left, y); ctx.lineTo(P.left + cw, y); ctx.stroke();
+    ctx.fillStyle = '#bbb';
+    ctx.fillText(shortNum(v), P.left - 6, y);
+  }
+
+  // X labels (0, last, and every 5)
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = '#bbb';
+  for (var i = 0; i < data.length; i++) {
+    if (i === 0 || i === data.length - 1 || i % 5 === 0) {
+      ctx.fillText(data[i].year, xf(i), P.top + ch + 6);
+    }
+  }
+
+  // Build point arrays
+  var ptsP = data.map(function(d, i) { return { x: xf(i), y: yf(d.principal) }; });
+  var ptsN = data.map(function(d, i) { return { x: xf(i), y: yf(d.nominal) }; });
+  var baseY = P.top + ch;
+
+  // Fill: principal area (bottom)
+  ctx.beginPath();
+  ptsP.forEach(function(p, i) { if (i===0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
+  ctx.lineTo(ptsP[ptsP.length-1].x, baseY);
+  ctx.lineTo(ptsP[0].x, baseY);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(165,165,141,0.30)';
+  ctx.fill();
+
+  // Fill: gain area (top, stacked on principal)
+  ctx.beginPath();
+  ptsN.forEach(function(p, i) { if (i===0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
+  for (var i = ptsP.length - 1; i >= 0; i--) ctx.lineTo(ptsP[i].x, ptsP[i].y);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(212,163,115,0.25)';
+  ctx.fill();
+
+  // Line: nominal total
+  ctx.beginPath();
+  ptsN.forEach(function(p, i) { if (i===0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
+  ctx.strokeStyle = '#D4A373';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Line: principal
+  ctx.beginPath();
+  ptsP.forEach(function(p, i) { if (i===0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
+  ctx.strokeStyle = '#A5A58D';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Legend
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.font = '10px sans-serif';
+  var lx = w - 112, ly = 6;
+  ctx.fillStyle = 'rgba(165,165,141,0.30)';
+  ctx.fillRect(lx, ly, 10, 10);
+  ctx.fillStyle = '#A5A58D';
+  ctx.fillText('累计本金', lx + 14, ly);
+  ctx.fillStyle = 'rgba(212,163,115,0.25)';
+  ctx.fillRect(lx + 70, ly, 10, 10);
+  ctx.fillStyle = '#D4A373';
+  ctx.fillText('复利收益', lx + 84, ly);
+}
+
+function shortNum(n) {
+  if (n >= 1e8) return (n/1e8).toFixed(1) + '亿';
+  if (n >= 1e4) return (n/1e4).toFixed(1) + '万';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'k';
+  return n.toFixed(0);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('habitName').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
   loadHabits();
 });
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/life-investment-calculator/sw.js');
+  navigator.serviceWorker.register('/life-investment-calculator/sw.js?v=5');
 }
 </script>
 </body>
