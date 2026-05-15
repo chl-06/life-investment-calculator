@@ -1148,7 +1148,7 @@ function savePlan() {
   savePlans(plans);
   document.getElementById('planName').value = '';
   renderPlans();
-  vibrate();
+  vibrate([30, 50, 30]);
   showToast('已保存「' + name + '」');
 }
 
