@@ -3,325 +3,305 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#2ecc71">
+<meta name="theme-color" content="#D4A373">
 <link rel="manifest" href="/life-investment-calculator/manifest.json">
 <link rel="icon" href="/life-investment-calculator/icons/icon.svg" type="image/svg+xml">
 <title>人生 ROI 计算器</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Poppins:wght@400;600&display=swap');
+
+  :root {
+    --paper-bg: #FAF9F6;
+    --card-bg: #FFFFFF;
+    --text-primary: #2D2D2D;
+    --text-secondary: #6B7280;
+    --accent-brown-start: #D4A373;
+    --accent-brown-end: #C49363;
+    --accent-hover: #BB8A52;
+    --success-sage: #A5A58D;
+    --card-shadow: rgba(149, 157, 165, 0.1) 0px 8px 24px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background-color: var(--paper-bg);
+    color: var(--text-primary);
+    font-family: 'Poppins', "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 1.6;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
-    padding: 30px 16px;
+    padding: 40px 16px;
   }
 
   .container {
-    background: white;
-    padding: 24px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    padding: 40px 36px;
+    max-width: 480px;
     width: 100%;
-    max-width: 420px;
-    margin: 0 auto;
+    border: 1px solid rgba(0,0,0,0.02);
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   h1 {
-    color: #2c3e50;
-    font-size: 22px;
-    text-align: center;
-    margin-bottom: 6px;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 2px;
+    border-bottom: 2px solid var(--accent-brown-start);
+    display: inline-block;
+    padding-bottom: 8px;
+    margin-bottom: 24px;
+    color: var(--text-primary);
   }
+
   .subtitle {
-    color: #95a5a6;
+    color: var(--text-secondary);
     font-size: 13px;
-    text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 28px;
+    letter-spacing: 0.5px;
   }
 
-  .input-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .input-row input {
-    flex: 1;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    outline: none;
-    font-family: inherit;
-  }
-  .input-row input:focus { border-color: #2ecc71; }
-
-  .time-picker {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 2px;
-    flex-shrink: 0;
-  }
-  .time-picker button {
-    width: 36px;
-    height: 36px;
-    border: none;
-    background: transparent;
-    border-radius: 6px;
-    font-size: 18px;
-    color: #555;
-    cursor: pointer;
-  }
-  .time-picker button:active { background: #ecf0f1; }
-  .time-picker span {
-    min-width: 32px;
-    text-align: center;
-    font-size: 14px;
+  .input-group { margin-bottom: 16px; position: relative; }
+  .input-group label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    display: block;
+    margin-bottom: 6px;
     font-weight: 600;
-    color: #2c3e50;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
   }
+
+  input, .time-picker {
+    width: 100%;
+    background-color: #fcfcfc;
+    border: 1.5px solid #eee;
+    border-radius: 8px;
+    padding: 12px 14px;
+    transition: border-color 0.3s, background-color 0.3s;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-primary);
+    outline: none;
+  }
+  input:focus { border-color: var(--accent-brown-start); background: #fff; box-shadow: 0 0 0 3px rgba(212,163,115,0.1); }
+
+  .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .input-row input { flex: 1; min-width: 0; }
+  .input-row .time-picker { display: flex; align-items: center; gap: 2px; padding: 4px; width: auto; flex-shrink: 0; }
+  .time-picker button {
+    width: 32px; height: 32px; padding: 0;
+    background: transparent; color: #999; box-shadow: none;
+    font-size: 18px; font-weight: 400; letter-spacing: 0;
+  }
+  .time-picker button:active { background: #f0f0f0; transform: none; box-shadow: none; }
+  .time-picker span { min-width: 30px; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-primary); }
 
   button {
-    padding: 12px;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 14px;
-    font-family: inherit;
-    transition: background 0.2s;
+    background: linear-gradient(135deg, var(--accent-brown-start) 0%, var(--accent-brown-end) 100%);
+    border-radius: 8px; border: none; padding: 14px 20px;
+    color: white; cursor: pointer; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    font-size: 13px; font-family: inherit;
+    transition: all 0.25s;
+    box-shadow: 0 4px 14px rgba(212,163,115,0.2);
+    -webkit-tap-highlight-color: transparent;
   }
-  button:active { background-color: #27ae60; }
-
+  button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(212,163,115,0.15);
+  }
+  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
   .btn-full { width: 100%; }
-  .btn-sm {
-    padding: 8px 14px;
-    background: #ecf0f1;
-    color: #555;
-    font-size: 12px;
+
+  .btn-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .btn-row button { flex: 1; }
+  .btn-ghost {
+    background: transparent; color: var(--text-secondary); box-shadow: none;
+    border: 1.5px solid #eee; text-transform: none; letter-spacing: 0;
+    flex: 0 0 auto; padding: 14px 16px;
   }
-  .btn-sm:active { background: #ddd; }
-  .btn-danger {
-    background: transparent;
-    color: #e74c3c;
-    padding: 2px 6px;
-    font-size: 12px;
-    width: auto;
-  }
-  .btn-calc {
-    background-color: #2ecc71;
-    font-size: 16px;
-    padding: 14px;
-    margin: 8px 0;
-  }
-  .btn-calc:disabled { background: #bdc3c7; cursor: not-allowed; }
+  .btn-ghost:active { background: #f8f8f8; border-color: #ddd; }
 
   .tag-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    min-height: 36px;
-    margin: 12px 0;
+    display: flex; flex-wrap: wrap; gap: 6px;
+    min-height: 36px; margin: 12px 0 10px;
   }
   .tag-list:empty::after {
-    content: '还没有添加行为，在上方输入吧 ✍️';
-    color: #bdc3c7;
-    font-size: 13px;
-    padding: 8px 0;
-    width: 100%;
-    text-align: center;
+    content: '还没有添加行为 ✍️ 输入日常事项后点添加';
+    color: #ccc; font-size: 12px; padding: 8px 0; width: 100%; text-align: center;
   }
   .tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 10px 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 10px 5px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 500;
+    border: 1px solid rgba(0,0,0,0.04);
   }
+  .tag button {
+    background: none; color: inherit; padding: 0 2px; font-size: 11px;
+    box-shadow: none; letter-spacing: 0; text-transform: none;
+    width: auto; opacity: 0.5;
+  }
+  .tag button:active { opacity: 1; transform: none; box-shadow: none; }
 
   .preset-row {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    padding-top: 12px;
-    border-top: 1px solid #ecf0f1;
+    display: flex; gap: 4px; flex-wrap: wrap;
+    padding-top: 12px; border-top: 1px solid #f0f0f0;
   }
   .preset-btn {
-    padding: 4px 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    background: white;
-    color: #666;
-    font-size: 11px;
-    cursor: pointer;
-    font-family: inherit;
+    padding: 5px 12px; font-size: 11px; width: auto;
+    background: #f8f8f8; color: var(--text-secondary);
+    box-shadow: none; text-transform: none; letter-spacing: 0;
+    border: 1px solid #eee; font-weight: 400;
   }
-  .preset-btn:active { background: #ecf0f1; }
+  .preset-btn:active { background: #eee; transform: none; }
 
-  .divider { height: 1px; background: #ecf0f1; margin: 12px 0; }
+  .btn-calc { margin: 10px 0 0; }
 
-  .result-section { display: none; }
+  .result-section { display: none; margin-top: 24px; }
+  .result-section.show { display: block; }
 
-  .score-box {
-    text-align: center;
-    padding: 16px;
-    background: #f9f9f9;
-    border-radius: 12px;
-    margin-bottom: 14px;
+  .result-box {
+    background: #fdfaf7;
+    border-radius: 8px;
+    padding: 20px;
+    border-left: 5px solid var(--accent-brown-start);
+    margin-bottom: 12px;
+    animation: resultFadeIn 0.4s ease-out;
   }
-  .score-box .score-num {
-    font-size: 40px;
-    font-weight: 800;
-    line-height: 1;
+  @keyframes resultFadeIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
   }
-  .score-box .score-label {
-    font-size: 13px;
-    color: #7f8c8d;
+
+  .result-main {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.8rem;
+    color: var(--success-sage);
+    font-weight: 700;
     margin-top: 4px;
+    line-height: 1.3;
+  }
+  .result-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
   }
 
-  .result-card {
-    padding: 14px;
-    background-color: #f9f9f9;
-    border-left: 5px solid #2ecc71;
-    border-radius: 6px;
-    margin-bottom: 10px;
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
   }
-  .result-card.red { border-left-color: #e74c3c; }
-  .result-card.orange { border-left-color: #f39c12; }
-
-  .result-card .rc-title {
-    font-size: 11px;
-    color: #95a5a6;
+  .stat-box {
+    background: #fdfaf7;
+    border-radius: 8px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat-box .s-label {
+    font-size: 10px;
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
   }
-  .result-card .rc-value {
-    font-size: 22px;
+  .stat-box .s-value {
+    font-size: 20px;
     font-weight: 700;
     margin-top: 2px;
+    font-family: 'Noto Serif SC', serif;
   }
-  .result-card .rc-sub {
-    font-size: 12px;
-    color: #7f8c8d;
+  .stat-box .s-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
   }
 
-  .metric-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .metric {
-    background: #f9f9f9;
+  .panel {
+    background: #fdfaf7;
     border-radius: 8px;
-    padding: 12px;
-    text-align: center;
+    padding: 14px 16px;
+    margin-bottom: 10px;
   }
-  .metric .m-label {
-    font-size: 10px;
-    color: #95a5a6;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-  .metric .m-value {
-    font-size: 18px;
-    font-weight: 700;
-    margin-top: 2px;
-  }
-  .metric .m-sub {
+  .panel-title {
     font-size: 11px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
   }
 
   .alloc-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 0;
-    font-size: 13px;
-    border-bottom: 1px solid #ecf0f1;
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 0; font-size: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
   }
   .alloc-item:last-child { border-bottom: none; }
-  .alloc-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .alloc-item .al-name { flex: 1; font-weight: 500; }
+  .alloc-item .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .alloc-item .al-name { flex: 1; }
   .alloc-item .al-bar {
-    flex: 2;
-    height: 6px;
-    background: #ecf0f1;
-    border-radius: 3px;
-    overflow: hidden;
+    flex: 2; height: 5px; background: #eee; border-radius: 3px; overflow: hidden;
   }
-  .alloc-item .al-bar-fill {
-    height: 100%;
-    border-radius: 3px;
-  }
-  .alloc-item .al-pct {
-    min-width: 36px;
-    text-align: right;
-    font-weight: 600;
-    color: #555;
-  }
-
-  .tips {
-    background: #fef9e7;
-    border-left: 4px solid #f39c12;
-    border-radius: 6px;
-    padding: 12px 14px;
-    font-size: 13px;
-    line-height: 1.7;
-    color: #7d6608;
-    margin-top: 10px;
-  }
-  .tips strong { color: #5a4a02; }
-
-  .verdict-box {
-    text-align: center;
-    padding: 16px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-  }
-  .verdict-box .v-icon { font-size: 36px; }
-  .verdict-box .v-title { font-size: 18px; font-weight: 700; margin: 6px 0 2px; }
-  .verdict-box .v-desc { font-size: 13px; opacity: 0.75; }
-  .verdict-good { background: #eafaf1; color: #1e8449; }
-  .verdict-meh { background: #fef9e7; color: #7d6608; }
-  .verdict-bad { background: #fdedec; color: #922b21; }
+  .alloc-item .al-bar-fill { height: 100%; border-radius: 3px; }
+  .alloc-item .al-pct { min-width: 32px; text-align: right; font-weight: 600; font-size: 11px; color: var(--text-secondary); }
 
   .risk-item {
-    display: flex;
-    gap: 8px;
-    padding: 6px 0;
-    font-size: 12px;
-    color: #555;
-    border-bottom: 1px solid #ecf0f1;
+    display: flex; gap: 8px; padding: 4px 0;
+    font-size: 12px; color: var(--text-secondary);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
   }
   .risk-item:last-child { border-bottom: none; }
 
+  .verdict-box {
+    text-align: center; padding: 20px 16px;
+    border-radius: 8px; margin-bottom: 10px;
+  }
+  .verdict-box .v-icon { font-size: 36px; }
+  .verdict-box .v-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px; font-weight: 700; margin: 4px 0 2px;
+  }
+  .verdict-box .v-desc { font-size: 13px; opacity: 0.75; }
+  .verdict-good { background: #f5f3ee; color: #7a7a5a; }
+  .verdict-meh { background: #faf6ed; color: #9a8a5a; }
+  .verdict-bad { background: #faf0ee; color: #9a5a5a; }
+
+  .tips-box {
+    background: #f5f3ee;
+    border-left: 4px solid var(--accent-brown-start);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 12px;
+    line-height: 1.8;
+    color: #5a5a4a;
+  }
+  .tips-box strong { color: var(--text-primary); }
+
   .footer {
-    text-align: center;
-    font-size: 11px;
-    color: #bdc3c7;
-    margin-top: 16px;
+    text-align: center; font-size: 11px;
+    color: #ccc; margin-top: 24px;
+    border-top: 1px solid #f0f0f0; padding-top: 16px;
   }
 
-  /* Mobile */
-  @media (max-width: 460px) {
-    body { padding: 16px 10px; }
-    .container { padding: 16px; border-radius: 16px; }
-    h1 { font-size: 20px; }
-    .metric-grid { grid-template-columns: 1fr; }
+  @media (max-width: 480px) {
+    body { padding: 20px 12px; }
+    .container { padding: 28px 20px; }
+    h1 { font-size: 22px; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .input-row .time-picker button { width: 36px; height: 36px; }
   }
 </style>
 </head>
@@ -329,28 +309,29 @@
 
 <div class="container">
 
-  <h1>人生 ROI 计算器</h1>
-  <div class="subtitle">输入每天做的事，自动分类并计算回报率</div>
+  <h1>人生 ROI</h1>
+  <div class="subtitle">录入每日行为，系统自动分析时间投资回报率</div>
 
-  <!-- Input -->
-  <div class="input-row">
-    <input type="text" id="habitName" placeholder='例如：健身1h, 睡觉7h, 上班8小时...' maxlength="100">
-    <div class="time-picker">
-      <button onclick="adjTime(-0.5)">−</button>
-      <span id="timeDisplay">1</span>
-      <button onclick="adjTime(0.5)">+</button>
+  <div class="input-group">
+    <label>📌 日常行为</label>
+    <div class="input-row">
+      <input type="text" id="habitName" placeholder='例如：健身1h, 睡觉7h, 上班8小时, 刷手机2h' maxlength="120">
+      <div class="time-picker">
+        <button onclick="adjTime(-0.5)">−</button>
+        <span id="timeDisplay">1</span>
+        <button onclick="adjTime(0.5)">+</button>
+      </div>
     </div>
   </div>
 
-  <div style="display:flex;gap:8px;">
-    <button class="btn-full" onclick="addHabit()">+ 添加</button>
-    <button class="btn-sm" onclick="clearHabits()" style="flex-shrink:0;">清空</button>
+  <div class="btn-row">
+    <button onclick="addHabit()">+ 添加</button>
+    <button class="btn-ghost" onclick="clearHabits()">清空</button>
   </div>
 
   <div class="tag-list" id="tagList"></div>
 
   <div class="preset-row">
-    <span style="font-size:10px;color:#bdc3c7;padding:4px 0;">快捷填充：</span>
     <button class="preset-btn" onclick="loadPreset('打工人')">打工人</button>
     <button class="preset-btn" onclick="loadPreset('卷王')">卷王</button>
     <button class="preset-btn" onclick="loadPreset('躺平')">躺平</button>
@@ -358,26 +339,26 @@
     <button class="preset-btn" onclick="loadPreset('人生赢家')">人生赢家</button>
   </div>
 
-  <button class="btn-full btn-calc" id="calcBtn" onclick="calculate()" disabled>开始分析人生 ROI</button>
+  <button class="btn-full btn-calc" id="calcBtn" onclick="calculate()" disabled>计算投资回报率</button>
 
   <!-- Results -->
   <div id="results" class="result-section">
 
-    <div class="score-box" id="scoreBox">
-      <div class="score-num" id="scoreNum">--</div>
-      <div class="score-label" id="scoreGrade">点击上方按钮查看</div>
+    <div class="result-box">
+      <div class="result-sub" id="scoreGrade">评分</div>
+      <div class="result-main" id="scoreNum">--</div>
     </div>
 
-    <div class="metric-grid" id="metricGrid"></div>
+    <div class="grid-3" id="metricGrid"></div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-      <div style="background:#f9f9f9;border-radius:8px;padding:12px;">
-        <div style="font-size:11px;color:#95a5a6;font-weight:600;text-transform:uppercase;margin-bottom:8px;">⏳ 时间分配</div>
-        <div id="allocContent"><div style="color:#bdc3c7;font-size:12px;text-align:center;padding:10px;">暂无数据</div></div>
+      <div class="panel" style="margin:0;">
+        <div class="panel-title">⏳ 时间分配</div>
+        <div id="allocContent"><div style="color:#ccc;font-size:12px;text-align:center;padding:8px;">暂无数据</div></div>
       </div>
-      <div style="background:#f9f9f9;border-radius:8px;padding:12px;">
-        <div style="font-size:11px;color:#95a5a6;font-weight:600;text-transform:uppercase;margin-bottom:8px;">⚠️ 风险</div>
-        <div id="riskContent"><div style="color:#bdc3c7;font-size:12px;text-align:center;padding:10px;">暂无数据</div></div>
+      <div class="panel" style="margin:0;">
+        <div class="panel-title">⚠️ 风险</div>
+        <div id="riskContent"><div style="color:#ccc;font-size:12px;text-align:center;padding:8px;">暂无数据</div></div>
       </div>
     </div>
 
@@ -389,6 +370,8 @@
 </div>
 
 <script>
+function v() { try { navigator.vibrate && navigator.vibrate(10); } catch(e) {} }
+
 // ===== 自动分类 =====
 function classify(name) {
   const n = name.trim().toLowerCase();
@@ -405,45 +388,41 @@ function classify(name) {
 
 function getTag(type) {
   const m = {
-    investment:    { label: '📈 增值', color: '#27ae60', bg: '#eafaf1' },
-    dividend:      { label: '💛 社交', color: '#d68910', bg: '#fef9e7' },
-    maintenance:   { label: '🔋 维护', color: '#2980b9', bg: '#eaf2f8' },
-    expense:       { label: '🎮 娱乐', color: '#8e44ad', bg: '#f4ecf7' },
-    depreciation:  { label: '📉 消耗', color: '#c0392b', bg: '#fdedec' },
-    liability:     { label: '⛓️ 损耗', color: '#922b21', bg: '#fdedec' },
-    operating:     { label: '📋 杂务', color: '#7f8c8d', bg: '#f2f3f4' },
+    investment:    { label: '📈 增值', color: '#7a9a5a', bg: '#f2f5ee' },
+    dividend:      { label: '💛 社交', color: '#b89a5a', bg: '#faf5ee' },
+    maintenance:   { label: '🔋 维护', color: '#5a8aaa', bg: '#eef2f5' },
+    expense:       { label: '🎮 娱乐', color: '#8a7aaa', bg: '#f2eef5' },
+    depreciation:  { label: '📉 消耗', color: '#b85a5a', bg: '#f5eeee' },
+    liability:     { label: '⛓️ 损耗', color: '#9a4a4a', bg: '#f5eeef' },
+    operating:     { label: '📋 杂务', color: '#8a8a8a', bg: '#f2f2f2' },
   };
   return m[type] || m.expense;
 }
 
 const CAT = {
-  investment:    { coeff: 1.8, color: '#27ae60' },
-  dividend:      { coeff: 1.3, color: '#d68910' },
-  maintenance:   { coeff: 0.9, color: '#2980b9' },
-  expense:       { coeff: 0.5, color: '#8e44ad' },
-  depreciation:  { coeff: 0.15, color: '#c0392b' },
-  liability:     { coeff: -0.3, color: '#922b21' },
-  operating:     { coeff: 0.4, color: '#7f8c8d' },
+  investment:    { coeff: 1.8, color: '#7a9a5a' },
+  dividend:      { coeff: 1.3, color: '#b89a5a' },
+  maintenance:   { coeff: 0.9, color: '#5a8aaa' },
+  expense:       { coeff: 0.5, color: '#8a7aaa' },
+  depreciation:  { coeff: 0.15, color: '#b85a5a' },
+  liability:     { coeff: -0.3, color: '#9a4a4a' },
+  operating:     { coeff: 0.4, color: '#8a8a8a' },
 };
 const KEYS = Object.keys(CAT);
 let habits = [];
 let curTime = 1;
-
-function v() { try { navigator.vibrate && navigator.vibrate(10); } catch(e) {} }
 
 function adjTime(d) { curTime = Math.max(0.5, Math.min(16, curTime + d)); document.getElementById('timeDisplay').textContent = curTime; v(); }
 
 function parseItem(text) {
   text = text.trim();
   if (!text) return null;
-  // Try to extract time: "健身1小时", "睡觉 7h", "上班 8小时", "学习2.5h"
   const m = text.match(/^(.+?)\s*([\d.]+)\s*(?:h|小时|时)?$/);
   if (m) {
     let name = m[1].trim();
     let hours = parseFloat(m[2]);
     if (name && hours > 0 && hours <= 24) return { name, hours, type: classify(name) };
   }
-  // Fallback: treat whole text as name
   return { name: text, hours: curTime, type: classify(text) };
 }
 
@@ -451,15 +430,9 @@ function addHabit() {
   const el = document.getElementById('habitName');
   const raw = el.value.trim();
   if (!raw) return;
-
-  // Batch input: split by comma, Chinese comma, newline, semicolon
   const items = raw.split(/[,，、;\n]+/).map(s => s.trim()).filter(Boolean);
   let added = 0;
-  items.forEach(item => {
-    const parsed = parseItem(item);
-    if (parsed) { habits.push(parsed); added++; }
-  });
-
+  items.forEach(item => { const p = parseItem(item); if (p) { habits.push(p); added++; } });
   el.value = ''; el.focus();
   if (added) { render(); enable(); v(); }
 }
@@ -470,7 +443,7 @@ function clearHabits() { if (habits.length) { habits = []; render(); enable(); v
 function render() {
   document.getElementById('tagList').innerHTML = habits.map((h, i) => {
     const t = getTag(h.type);
-    return `<span class="tag" style="background:${t.bg};color:${t.color}">${t.label} ${h.name} ${h.hours}h <button class="btn-danger" onclick="removeHabit(${i})">✕</button></span>`;
+    return `<span class="tag" style="background:${t.bg};color:${t.color};border-color:${t.color}22">${t.label} ${h.name} ${h.hours}h <button onclick="removeHabit(${i})">✕</button></span>`;
   }).join('');
 }
 
@@ -490,10 +463,10 @@ function loadPreset(name) {
 }
 
 function calculate() {
-  if (!habits.length) return;
-  v();
-  document.getElementById('results').style.display = 'block';
-  setTimeout(() => document.getElementById('results').scrollIntoView({ behavior:'smooth' }), 50);
+  if (!habits.length) return; v();
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  setTimeout(() => r.scrollIntoView({ behavior:'smooth' }), 50);
 
   const total = habits.reduce((s,h) => s + h.hours, 0);
   const g = {}; KEYS.forEach(k => { g[k] = { hours:0, items:[] }; });
@@ -511,64 +484,59 @@ function calculate() {
   score = Math.max(0, Math.min(100, score));
 
   let grade, gCls, color;
-  if (score >= 80) { grade='优秀'; gCls='verdict-good'; color='#1e8449'; }
-  else if (score >= 60) { grade='良好'; gCls='verdict-good'; color='#1e8449'; }
-  else if (score >= 40) { grade='一般'; gCls='verdict-meh'; color='#7d6608'; }
-  else { grade='堪忧'; gCls='verdict-bad'; color='#922b21'; }
+  if (score >= 80) { grade='优秀 · 蓝筹资产'; gCls='verdict-good'; color='#7a7a5a'; }
+  else if (score >= 60) { grade='良好 · 可持有'; gCls='verdict-good'; color='#7a7a5a'; }
+  else if (score >= 40) { grade='一般 · 观望'; gCls='verdict-meh'; color='#9a8a5a'; }
+  else { grade='堪忧 · 需重组'; gCls='verdict-bad'; color='#9a5a5a'; }
 
-  document.getElementById('scoreNum').textContent = Math.round(score);
+  document.getElementById('scoreNum').textContent = Math.round(score) + ' 分';
   document.getElementById('scoreNum').style.color = color;
-  document.getElementById('scoreGrade').textContent = '评级：' + grade;
+  document.getElementById('scoreGrade').textContent = grade;
   document.getElementById('scoreGrade').style.color = color;
 
   const eff = total > 0 ? (iH/total*100) : 0;
   const bad = total > 0 ? ((dH+lH)/total*100) : 0;
   const yr = Math.pow(1 + avg, 365) - 1;
-  document.getElementById('metricGrid').innerHTML = `
-    <div class="metric"><div class="m-label">增值效率</div><div class="m-value" style="color:${eff>30?'#27ae60':'#d68910'}">${eff.toFixed(0)}%</div><div class="m-sub">增值占比</div></div>
-    <div class="metric"><div class="m-label">不良率</div><div class="m-value" style="color:${bad<20?'#27ae60':'#c0392b'}">${bad.toFixed(0)}%</div><div class="m-sub">消耗+损耗</div></div>
-    <div class="metric"><div class="m-label">年化复利</div><div class="m-value" style="color:${yr>0?'#27ae60':'#c0392b'}">${yr>0?'+':''}${(yr*100).toFixed(0)}%</div><div class="m-sub">日回报滚动</div></div>`;
 
-  // Allocation
+  document.getElementById('metricGrid').innerHTML = `
+    <div class="stat-box"><div class="s-label">增值效率</div><div class="s-value" style="color:${eff>25?'#7a9a5a':'#b89a5a'}">${eff.toFixed(0)}%</div><div class="s-sub">增值占比</div></div>
+    <div class="stat-box"><div class="s-label">不良率</div><div class="s-value" style="color:${bad<20?'#7a9a5a':'#b85a5a'}">${bad.toFixed(0)}%</div><div class="s-sub">消耗+损耗</div></div>
+    <div class="stat-box"><div class="s-label">年化复利</div><div class="s-value" style="color:${yr>0?'#7a9a5a':'#b85a5a'}">${yr>0?'+':''}${(yr*100).toFixed(0)}%</div><div class="s-sub">日回报滚动</div></div>`;
+
   const sorted = KEYS.filter(k => g[k].hours > 0).sort((a,b) => g[b].hours - g[a].hours);
   document.getElementById('allocContent').innerHTML = sorted.length ? sorted.map(k => {
     const pct = g[k].hours / total * 100;
-    return `<div class="alloc-item"><span class="dot" style="background:${CAT[k].color}"></span><span class="al-name">${CAT[k].label||k}</span><span class="al-bar"><span class="al-bar-fill" style="width:${pct}%;background:${CAT[k].color}"></span></span><span class="al-pct">${pct.toFixed(0)}%</span></div>`;
-  }).join('') : '<div style="color:#bdc3c7;font-size:12px;text-align:center;padding:10px;">暂无数据</div>';
+    return `<div class="alloc-item"><span class="dot" style="background:${CAT[k].color}"></span><span class="al-name">${k==='investment'?'增值':k==='dividend'?'社交':k==='maintenance'?'维护':k==='expense'?'娱乐':k==='depreciation'?'消耗':k==='liability'?'损耗':'杂务'}</span><span class="al-bar"><span class="al-bar-fill" style="width:${pct}%;background:${CAT[k].color}"></span></span><span class="al-pct">${pct.toFixed(0)}%</span></div>`;
+  }).join('') : '<div style="color:#ccc;font-size:12px;text-align:center;padding:8px;">暂无数据</div>';
 
-  // Risks
   const risks = [];
-  if ((g.depreciation?.hours||0)/total > 0.15) risks.push(['📉', '消耗类占比过高，认知资本快速折旧']);
+  if ((g.depreciation?.hours||0)/total > 0.15) risks.push(['📉', '消耗类占比偏高，认知资本折旧加速']);
   if ((g.liability?.hours||0)/total > 0.10) risks.push(['⛓️', '损耗类超阈值，产生负收益']);
   if ((g.investment?.hours||0)/total < 0.15) risks.push(['📈', '增值类不足，长期跑输大盘']);
-  if (sH > 0 && sH < 6) risks.push(['🔴', '睡眠仅' + sH.toFixed(1) + '小时']);
-  if (risks.length === 0) risks.push(['🟢', '风险可控']);
-  document.getElementById('riskContent').innerHTML = risks.map(r => '<div class="risk-item"><span>' + r[0] + '</span><span>' + r[1] + '</span></div>').join('');
+  if (sH > 0 && sH < 6) risks.push(['🔴', '睡眠仅'+sH.toFixed(1)+'小时，有宕机风险']);
+  if (risks.length === 0) risks.push(['🟢', '风险可控，时间配置健康']);
+  document.getElementById('riskContent').innerHTML = risks.map(r => '<div class="risk-item"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>').join('');
 
-  // Verdict
   let icon, title, desc;
-  if (score >= 80) { icon='🏆'; title='强烈买入'; desc='你的人生是一支优质资产。'; }
-  else if (score >= 60) { icon='👍'; title='持有'; desc='底子不错，减少消耗更上一层楼。'; }
-  else if (score >= 40) { icon='🤔'; title='观望'; desc='平庸但有救，重新审视时间配置。'; }
-  else { icon='🚨'; title='紧急处理'; desc='建议启动人生资产重组。'; }
-  document.getElementById('verdictContent').innerHTML = '<div class="verdict-box ' + gCls + '"><div class="v-icon">' + icon + '</div><div class="v-title">' + title + '</div><div class="v-desc">' + desc + '</div></div>';
+  if (score >= 80) { icon='🏛️'; title='优质资产'; desc='你的人生是一支值得长期持有的核心资产。'; }
+  else if (score >= 60) { icon='📄'; title='可持有'; desc='底子不错，减少消耗类活动即可提升评级。'; }
+  else if (score >= 40) { icon='🔍'; title='列入观察'; desc='平庸但有优化空间，重新审视时间配置。'; }
+  else { icon='⚠️'; title='需重组'; desc='建议立即启动人生资产重组计划。'; }
+  document.getElementById('verdictContent').innerHTML = '<div class="verdict-box '+gCls+'"><div class="v-icon">'+icon+'</div><div class="v-title">'+title+'</div><div class="v-desc">'+desc+'</div></div>';
 
-  // Tips
   const tips = [];
-  if (iH < 2) tips.push('📈 增加增值活动：每天至少 2 小时学习或锻炼');
-  if (dH > 1) tips.push('📉 减少消耗：刷社交媒体控制在 30 分钟内');
+  if (iH < 2) tips.push('📈 增加增值活动：每天至少投入 2 小时在学习和锻炼上');
+  if (dH > 1) tips.push('📉 减少消耗：刷社交媒体控制在 30 分钟以内');
   if (lH > 0.5) tips.push('⛓️ 止损损耗：无效加班和内耗是负资产');
   if (sH > 0 && sH < 7) tips.push('😴 保证睡眠：7-8 小时不可压缩');
-  if ((g.dividend?.hours||0) < 0.5) tips.push('💛 增加社交：陪家人朋友是低风险高回报资产');
-  document.getElementById('tipsContent').innerHTML = tips.length ? '<div class="tips"><strong>💡 优化建议</strong><br>' + tips.join('<br>') + '</div>' : '';
+  if ((g.dividend?.hours||0) < 0.5) tips.push('💛 增加社交：陪伴家人是低风险高回报资产');
+  document.getElementById('tipsContent').innerHTML = tips.length ? '<div class="tips-box"><strong>💡 优化建议</strong><br>'+tips.join('<br>')+'</div>' : '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('habitName').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
-  document.getElementById('habitName').addEventListener('focus', () => { try { navigator.vibrate && navigator.vibrate(5); } catch(e) {} });
 });
 
-// Add vibration to all buttons with onclick
 document.addEventListener('click', function(e) {
   if (e.target.closest('button')) { try { navigator.vibrate && navigator.vibrate(8); } catch(e) {} }
 }, false);
