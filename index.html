@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#667eea">
+<meta name="theme-color" content="#f97316">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="人生 ROI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,12 +17,13 @@
 
   body {
     font-family: 'Inter', -apple-system, sans-serif;
-    background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf1 100%);
-    color: #1a1a2e;
+    background: linear-gradient(160deg, #fef9f0 0%, #fdf2e9 50%, #fef7ee 100%);
+    color: #2d1f14;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     padding: 24px 16px;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .app { max-width: 780px; width: 100%; }
@@ -30,135 +31,158 @@
   .header { text-align: center; margin-bottom: 24px; }
   .header h1 {
     font-size: 32px; font-weight: 900;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #fb923c, #e11d48);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     letter-spacing: -0.5px;
   }
-  .header p { color: #6b7280; font-size: 13px; margin-top: 6px; }
+  .header p { color: #a18072; font-size: 13px; margin-top: 6px; }
 
   .card {
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.04);
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 24px;
+    box-shadow: 0 1px 3px rgba(251,146,60,0.06), 0 8px 32px rgba(251,146,60,0.06);
     padding: 20px 24px;
     margin-bottom: 16px;
+    border: 1px solid rgba(251,146,60,0.08);
     transition: box-shadow 0.3s;
   }
-  .card:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 12px 48px rgba(0,0,0,0.08); }
   .card-title {
-    font-size: 13px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.8px; color: #9ca3af; margin-bottom: 16px;
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: #c4a294; margin-bottom: 14px;
   }
 
   /* Input */
   .input-row { display: flex; gap: 10px; margin-bottom: 14px; }
   .input-row input {
     flex: 1; min-width: 0;
-    border: 2px solid #e5e7eb; border-radius: 12px;
+    border: 2px solid #f0e4dc; border-radius: 14px;
     padding: 14px 16px; font-size: 16px; font-family: inherit;
-    outline: none; transition: border-color 0.2s; background: #f9fafb;
+    outline: none; transition: all 0.25s; background: #fefcf9;
+    color: #2d1f14;
     -webkit-appearance: none;
   }
-  .input-row input:focus { border-color: #667eea; background: #fff; }
-  .input-row input::placeholder { color: #b0b7c3; }
+  .input-row input:focus { border-color: #fb923c; background: #fff; box-shadow: 0 0 0 4px rgba(251,146,60,0.1); }
+  .input-row input::placeholder { color: #d4c0b4; }
 
   .time-picker {
     display: flex; align-items: center; gap: 2px;
-    background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px; padding: 2px;
+    background: #fefcf9; border: 2px solid #f0e4dc; border-radius: 14px; padding: 2px;
     flex-shrink: 0;
+    transition: border-color 0.2s;
   }
+  .time-picker:focus-within { border-color: #fb923c; }
   .time-picker button {
-    width: 42px; height: 42px; border: none; background: transparent;
-    border-radius: 10px; font-size: 20px; font-weight: 600; color: #6b7280;
+    width: 44px; height: 44px; border: none; background: transparent;
+    border-radius: 12px; font-size: 20px; font-weight: 600; color: #c4a294;
     cursor: pointer; transition: all 0.15s;
     display: flex; align-items: center; justify-content: center;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    position: relative; overflow: hidden;
   }
-  .time-picker button:active { background: #e5e7eb; }
+  .time-picker button:active { background: #f5e8e0; color: #fb923c; }
   .time-picker span {
-    min-width: 44px; text-align: center; font-size: 16px; font-weight: 600; color: #1a1a2e;
+    min-width: 44px; text-align: center; font-size: 17px; font-weight: 700; color: #2d1f14;
   }
 
   .input-actions { display: flex; gap: 10px; }
   .btn {
-    border: none; border-radius: 12px; padding: 14px 24px;
+    border: none; border-radius: 14px; padding: 14px 24px;
     font-size: 15px; font-weight: 600; font-family: inherit;
-    cursor: pointer; transition: all 0.2s;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.2s;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    position: relative; overflow: hidden;
   }
   .btn-primary {
-    background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; flex: 1;
+    background: linear-gradient(135deg, #fb923c, #e11d48);
+    color: #fff; flex: 1;
+    box-shadow: 0 4px 16px rgba(251,146,60,0.25);
   }
-  .btn-primary:active { transform: scale(0.97); }
-  .btn-secondary { background: #f3f4f6; color: #6b7280; }
-  .btn-secondary:active { background: #e5e7eb; }
+  .btn-primary:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(251,146,60,0.2); }
+  .btn-secondary { background: #f5e8e0; color: #a18072; }
+  .btn-secondary:active { background: #ede0d6; transform: scale(0.97); }
+
+  /* Ripple */
+  .ripple {
+    position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    transform: scale(0);
+    animation: rippleAnim 0.5s ease-out;
+    pointer-events: none;
+  }
+  @keyframes rippleAnim {
+    to { transform: scale(4); opacity: 0; }
+  }
 
   /* Tags */
   .tag-list { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; }
   .tag-list:empty::after {
-    content: '还没有添加内容 👆 在上方输入你的日常行为吧';
+    content: '还没有添加内容 👆 输入你的日常行为吧';
     display: block; width: 100%; text-align: center;
-    color: #b0b7c3; font-size: 13px; padding: 10px 0;
+    color: #d4c0b4; font-size: 13px; padding: 10px 0;
   }
   .tag {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 8px 14px 8px 16px; border-radius: 100px;
     font-size: 14px; font-weight: 500;
-    animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   @keyframes popIn {
-    0% { transform: scale(0.8); opacity: 0; }
+    0% { transform: scale(0.7); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
   }
   .tag .remove {
-    width: 18px; height: 18px; border-radius: 50%; border: none;
+    width: 20px; height: 20px; border-radius: 50%; border: none;
     background: rgba(0,0,0,0.1); color: inherit; font-size: 12px;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s; line-height: 1;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .tag .remove:hover { background: rgba(0,0,0,0.2); }
+  .tag .remove:active { background: rgba(0,0,0,0.25); }
 
   /* Presets */
-  .preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 0; }
+  .preset-row { display: flex; gap: 8px; flex-wrap: wrap; }
   .preset-btn {
-    border: 1px solid #e5e7eb; border-radius: 100px;
+    border: 1.5px solid #f0e4dc; border-radius: 100px;
     padding: 8px 16px; font-size: 13px; font-family: inherit;
-    font-weight: 500; color: #6b7280; background: #f9fafb;
+    font-weight: 500; color: #a18072; background: #fefcf9;
     cursor: pointer; transition: all 0.2s;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
-  .preset-btn:active { border-color: #667eea; color: #4338ca; background: #eef2ff; }
+  .preset-btn:active { border-color: #fb923c; color: #fb923c; background: #fff7f0; transform: scale(0.96); }
 
   /* Calc button */
   .calc-wrap { text-align: center; margin: 8px 0 20px; }
   .btn-calc {
     width: 100%; max-width: 360px;
-    padding: 16px 32px; font-size: 17px; font-weight: 700; border-radius: 16px;
-    border: none; background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff; cursor: pointer; font-family: inherit; transition: all 0.25s;
-    box-shadow: 0 4px 20px rgba(102,126,234,0.25);
+    padding: 18px 32px; font-size: 17px; font-weight: 700; border-radius: 18px;
+    border: none; background: linear-gradient(135deg, #fb923c, #e11d48);
+    color: #fff; cursor: pointer; font-family: inherit; transition: transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 6px 24px rgba(251,146,60,0.3);
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    position: relative; overflow: hidden;
   }
-  .btn-calc:active:not(:disabled) { transform: scale(0.97); }
+  .btn-calc:active:not(:disabled) { transform: scale(0.97); box-shadow: 0 3px 12px rgba(251,146,60,0.2); }
+  .btn-calc:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
   /* Results */
   .results { display: none; }
 
-  .score-hero {
-    display: flex; align-items: center; gap: 32px; padding: 8px 0;
-  }
+  .score-hero { display: flex; align-items: center; gap: 28px; padding: 8px 0; }
   .score-ring { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
   .score-ring svg { transform: rotate(-90deg); }
-  .ring-bg { fill: none; stroke: #e5e7eb; stroke-width: 10; }
+  .ring-bg { fill: none; stroke: #f0e4dc; stroke-width: 10; }
   .ring-fill {
     fill: none; stroke-width: 10; stroke-linecap: round;
     transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    filter: drop-shadow(0 2px 8px rgba(251,146,60,0.3));
   }
   .score-label {
     position: absolute; inset: 0;
@@ -166,102 +190,95 @@
     align-items: center; justify-content: center;
   }
   .score-label .num { font-size: 38px; font-weight: 800; line-height: 1; letter-spacing: -1px; }
-  .score-label .grade { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-  .score-text { flex: 1; font-size: 14px; line-height: 1.7; color: #4b5563; }
-  .score-text strong { color: #1a1a2e; }
+  .score-label .grade { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+  .score-text { flex: 1; font-size: 14px; line-height: 1.7; color: #a18072; }
+  .score-text strong { color: #2d1f14; }
   @media (max-width: 640px) {
     .score-hero { flex-direction: column; text-align: center; gap: 12px; }
   }
 
-  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 0; }
   @media (max-width: 640px) { .metric-grid { grid-template-columns: 1fr; gap: 8px; } }
-  .metric { background: #f9fafb; border-radius: 14px; padding: 16px; text-align: center; }
-  .metric .m-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af; }
-  .metric .m-value { font-size: 22px; font-weight: 800; margin-top: 4px; line-height: 1.2; }
-  .metric .m-sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .metric {
+    background: linear-gradient(135deg, #fefcf9, #fdf6f0);
+    border-radius: 16px; padding: 16px; text-align: center;
+    border: 1px solid rgba(251,146,60,0.08);
+  }
+  .metric .m-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #c4a294; }
+  .metric .m-value { font-size: 24px; font-weight: 800; margin-top: 4px; line-height: 1.2; }
+  .metric .m-sub { font-size: 12px; color: #a18072; margin-top: 2px; }
 
   .alloc-item {
     display: flex; align-items: center; gap: 10px;
-    padding: 8px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px;
+    padding: 10px 0; border-bottom: 1px solid #f5ece6; font-size: 14px;
   }
   .alloc-item:last-child { border-bottom: none; }
   .alloc-item .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .alloc-item .al-name { flex: 1; font-weight: 500; }
+  .alloc-item .al-name { flex: 1; font-weight: 600; color: #2d1f14; }
   .alloc-item .al-bar {
-    flex: 2; height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden;
+    flex: 2; height: 8px; background: #f5ece6; border-radius: 4px; overflow: hidden;
   }
   .alloc-item .al-bar-fill {
     height: 100%; border-radius: 4px;
     transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .alloc-item .al-pct {
-    font-size: 13px; font-weight: 600; color: #4b5563; min-width: 42px; text-align: right;
+    font-size: 14px; font-weight: 700; color: #a18072; min-width: 44px; text-align: right;
   }
 
-  .verdict-box { border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 0; }
-  .verdict-box .v-icon { font-size: 40px; }
+  .verdict-box { border-radius: 18px; padding: 24px; text-align: center; }
+  .verdict-box .v-icon { font-size: 44px; }
   .verdict-box .v-title { font-size: 22px; font-weight: 800; margin: 8px 0 4px; }
-  .verdict-box .v-desc { font-size: 14px; color: inherit; opacity: 0.75; }
-  .verdict-good { background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #065f46; }
-  .verdict-meh { background: linear-gradient(135deg, #fffbeb, #fef3c7); color: #92400e; }
-  .verdict-bad { background: linear-gradient(135deg, #fef2f2, #fecaca); color: #991b1b; }
+  .verdict-box .v-desc { font-size: 14px; opacity: 0.75; }
+  .verdict-good { background: linear-gradient(135deg, #fef7ee, #fde8d0); color: #9a4d1a; }
+  .verdict-meh { background: linear-gradient(135deg, #fef7ee, #fde8d0); color: #9a4d1a; }
+  .verdict-bad { background: linear-gradient(135deg, #fef2f2, #fce4e4); color: #991b1b; }
 
-  .risk-item { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; color: #4b5563; }
+  .risk-item { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid #f5ece6; font-size: 13px; color: #a18072; }
   .risk-item:last-child { border-bottom: none; }
   .risk-item .ri-icon { font-size: 16px; line-height: 1.4; }
 
   .tips {
-    background: linear-gradient(135deg, #eef2ff, #ede9fe);
-    border-radius: 14px; padding: 16px 20px; font-size: 13px; line-height: 1.7; color: #4338ca;
+    background: linear-gradient(135deg, #fef7ee, #fde8d0);
+    border-radius: 16px; padding: 16px 20px; font-size: 13px; line-height: 1.8; color: #9a4d1a;
   }
-  .tips strong { color: #312e81; }
+  .tips strong { color: #7a3a10; }
 
-  .footer { text-align: center; font-size: 11px; color: #b0b7c3; margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
-  .skeleton { color: #d1d5db; text-align: center; padding: 20px; font-size: 14px; }
+  .footer { text-align: center; font-size: 11px; color: #d4c0b4; margin-top: 28px; padding-top: 16px; border-top: 1px solid #f0e4dc; }
+  .skeleton { color: #d4c0b4; text-align: center; padding: 20px; font-size: 14px; }
 
-  /* ===== Mobile optimizations ===== */
+  /* ===== Mobile ===== */
   @media (max-width: 640px) {
     body { padding: 12px 10px; }
     .header h1 { font-size: 26px; }
     .header p { font-size: 12px; }
-    .card { padding: 16px; border-radius: 16px; margin-bottom: 12px; }
-    .card-title { font-size: 12px; margin-bottom: 12px; }
+    .card { padding: 16px; border-radius: 18px; margin-bottom: 12px; }
+    .card-title { font-size: 11px; margin-bottom: 12px; }
 
     .input-row { gap: 8px; }
     .input-row input { font-size: 16px; padding: 12px 14px; }
-    .time-picker button { width: 44px; height: 44px; font-size: 22px; }
-    .time-picker span { min-width: 36px; font-size: 16px; }
+    .time-picker button { width: 46px; height: 46px; }
+    .time-picker span { min-width: 36px; }
 
-    .btn { padding: 14px 16px; font-size: 15px; border-radius: 12px; }
-    .btn-calc { font-size: 16px; padding: 14px 24px; }
+    .btn { padding: 14px 16px; font-size: 15px; border-radius: 14px; }
+    .btn-calc { font-size: 16px; padding: 16px 24px; max-width: 100%; }
 
     .tag { font-size: 13px; padding: 6px 12px 6px 14px; }
-    .tag .remove { width: 20px; height: 20px; font-size: 11px; }
+    .tag .remove { width: 22px; height: 22px; font-size: 12px; }
 
     .preset-btn { padding: 7px 12px; font-size: 12px; }
+    .preset-row > span { display: none; }
 
     .score-ring { width: 110px; height: 110px; }
-    .score-ring svg { width: 110px; height: 110px; }
-    .score-label .num { font-size: 30px; }
-    .score-label .grade { font-size: 10px; }
-    .score-text { font-size: 13px; }
 
     .metric { padding: 12px; }
     .metric .m-value { font-size: 20px; }
 
-    .alloc-item { font-size: 13px; padding: 6px 0; gap: 8px; }
-    .alloc-item .al-bar { flex: 1; }
-
-    .risk-item { font-size: 12px; padding: 6px 0; }
-
     .verdict-box { padding: 20px 16px; }
-    .verdict-box .v-icon { font-size: 32px; }
+    .verdict-box .v-icon { font-size: 34px; }
     .verdict-box .v-title { font-size: 18px; }
 
     .tips { font-size: 12px; padding: 14px 16px; }
-
-    .preset-row { gap: 6px; }
-    .preset-row > span { display: none; }
   }
 
   /* Two-column → single on mobile */
@@ -271,13 +288,21 @@
     }
   }
 
-  /* Remove hover on touch devices */
+  /* Touch device hover removal */
   @media (hover: none) {
-    .btn-primary:hover { transform: none; box-shadow: none; }
-    .btn-calc:hover:not(:disabled) { transform: none; box-shadow: 0 4px 20px rgba(102,126,234,0.25); }
-    .time-picker button:hover { background: transparent; }
-    .preset-btn:hover { border-color: #e5e7eb; color: #6b7280; background: #f9fafb; }
-    .tag .remove:hover { background: rgba(0,0,0,0.1); }
+    .btn-primary:hover { transform: none; box-shadow: 0 4px 16px rgba(251,146,60,0.25); }
+    .btn-calc:hover:not(:disabled) { transform: none; box-shadow: 0 6px 24px rgba(251,146,60,0.3); }
+    .time-picker button:hover { background: transparent; color: #c4a294; }
+    .preset-btn:hover { border-color: #f0e4dc; color: #a18072; background: #fefcf9; transform: none; }
+  }
+
+  /* Entry animation */
+  .card { animation: cardIn 0.4s ease-out both; }
+  .card:nth-child(2) { animation-delay: 0.05s; }
+  .card:nth-child(3) { animation-delay: 0.1s; }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 </style>
 </head>
@@ -287,7 +312,7 @@
 
   <div class="header">
     <h1>人生 ROI 计算器</h1>
-    <p>输入你每天做的事，AI 自动分类并计算投资回报率</p>
+    <p>输入每天做的事，系统自动分类并计算投资回报率</p>
   </div>
 
   <!-- Input -->
@@ -295,36 +320,36 @@
     <div class="card-title">📋 录入日常行为</div>
 
     <div class="input-row">
-      <input type="text" id="habitName" placeholder="比如：刷短视频、健身、上班、睡觉..." maxlength="20" autocomplete="off">
+      <input type="text" id="habitName" placeholder="比如：刷短视频、健身、上班..." maxlength="20" autocomplete="off">
       <div class="time-picker">
-        <button onclick="adjTime(-0.5)">−</button>
+        <button ontouchstart="" onclick="adjTime(-0.5);tapVibrate()">−</button>
         <span id="timeDisplay">1</span>
-        <button onclick="adjTime(0.5)">+</button>
+        <button ontouchstart="" onclick="adjTime(0.5);tapVibrate()">+</button>
       </div>
     </div>
 
     <div class="input-actions">
-      <button class="btn btn-primary" onclick="addHabit()">+ 添加</button>
-      <button class="btn btn-secondary" onclick="clearHabits()">清空</button>
+      <button class="btn btn-primary" ontouchstart="" onclick="addHabit();tapVibrate()">+ 添加</button>
+      <button class="btn btn-secondary" ontouchstart="" onclick="clearHabits();tapVibrate()">清空</button>
     </div>
 
     <div style="margin-top:16px;">
       <div class="tag-list" id="tagList"></div>
     </div>
 
-    <div class="preset-row" style="margin-top:16px;padding-top:16px;border-top:1px solid #f3f4f6;">
-      <span style="font-size:11px;color:#b0b7c3;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;padding:5px 0;">快捷模板</span>
-      <button class="preset-btn" onclick="loadPreset('打工人')">打工人</button>
-      <button class="preset-btn" onclick="loadPreset('卷王')">卷王</button>
-      <button class="preset-btn" onclick="loadPreset('躺平')">躺平</button>
-      <button class="preset-btn" onclick="loadPreset('自律达人')">自律达人</button>
-      <button class="preset-btn" onclick="loadPreset('人生赢家')">人生赢家</button>
+    <div class="preset-row" style="margin-top:16px;padding-top:16px;border-top:1px solid #f5ece6;">
+      <span style="font-size:11px;color:#d4c0b4;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;padding:5px 0;">模板</span>
+      <button class="preset-btn" ontouchstart="" onclick="loadPreset('打工人');tapVibrate()">打工人</button>
+      <button class="preset-btn" ontouchstart="" onclick="loadPreset('卷王');tapVibrate()">卷王</button>
+      <button class="preset-btn" ontouchstart="" onclick="loadPreset('躺平');tapVibrate()">躺平</button>
+      <button class="preset-btn" ontouchstart="" onclick="loadPreset('自律达人');tapVibrate()">自律达人</button>
+      <button class="preset-btn" ontouchstart="" onclick="loadPreset('人生赢家');tapVibrate()">人生赢家</button>
     </div>
   </div>
 
   <!-- Calculate -->
   <div class="calc-wrap">
-    <button class="btn-calc" id="calcBtn" onclick="calculate()" disabled>开始分析人生 ROI</button>
+    <button class="btn-calc" id="calcBtn" ontouchstart="" onclick="calculate();tapVibrate()" disabled>开始分析人生 ROI</button>
   </div>
 
   <!-- Results -->
@@ -337,7 +362,7 @@
           <svg width="140" height="140" viewBox="0 0 140 140">
             <circle class="ring-bg" cx="70" cy="70" r="58"/>
             <circle class="ring-fill" id="ringFill" cx="70" cy="70" r="58"
-              stroke="#667eea" stroke-dasharray="364" stroke-dashoffset="364"/>
+              stroke="#fb923c" stroke-dasharray="364" stroke-dashoffset="364"/>
           </svg>
           <div class="score-label">
             <div class="num" id="scoreNum">--</div>
@@ -375,30 +400,57 @@
 </div>
 
 <script>
-// ===== 自动分类引擎 =====
+// ===== Vibration + Ripple =====
+function tapVibrate() {
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function ripple(e) {
+  const btn = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left - size / 2;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top - size / 2;
+  const el = document.createElement('span');
+  el.className = 'ripple';
+  el.style.width = el.style.height = size + 'px';
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  btn.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+}
+
+// Attach ripple to all touch buttons
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[ontouchstart]').forEach(el => {
+    el.addEventListener('touchstart', ripple);
+    el.addEventListener('mousedown', ripple);
+  });
+  document.getElementById('habitName').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addHabit();
+  });
+});
+
+// ===== Auto Classification =====
 function classify(name) {
   const n = name.trim().toLowerCase();
 
-  // 📈 增值 — 学习·健身·工作·创造
   const investKW = [
     '健身','跑步','锻炼','运动','撸铁','瑜伽','游泳','跳绳','打球','跑步机',
     '学习','读书','阅读','看书','上课','听课','复习','备考','背单词','练习','写作','写代码','编程','创作',
-    '冥想','正念','复盘','计划','规划','思考','反思','日记','做项目'
+    '冥想','正念','复盘','计划','规划','思考','反思','日记','做项目','深度工作'
   ];
-  // 💛 社交 — 家人·朋友·社交
   const socialKW = [
     '陪家人','陪父母','陪孩子','陪对象','陪女朋友','陪男朋友','陪老婆','陪老公','陪娃','带娃',
     '约会','聚餐','聊天','社交','聚会','串门','拜访','电话','视频','和朋友','和同学','和同事',
     '谈恋爱','相亲','交友'
   ];
-  // 🔋 维护 — 睡眠·吃饭·洗漱
   const maintKW = [
     '睡觉','睡眠','午睡','休息','打盹','闭目养神',
     '吃饭','早餐','午餐','晚餐','做饭','煮饭','烹饪','进食','喝水',
     '洗漱','洗澡','洗头','刷牙','护肤','化妆','打扮','穿衣','换衣服','上厕所',
     '看病','体检','理疗','按摩','spa'
   ];
-  // 🎮 娱乐 — 追剧·游戏·听歌
   const funKW = [
     '追剧','看剧','看电影','看视频','看动漫','看番','刷剧','看综艺','看纪录片',
     '打游戏','玩游戏','王者','吃鸡','原神','lol','英雄联盟','steam','switch','ps5','ns',
@@ -406,18 +458,15 @@ function classify(name) {
     '逛街','购物','淘宝','京东','拼多多','刷淘宝','买东西','逛商场',
     '旅游','旅行','出去玩','去玩','散步','遛弯','逛公园','遛狗'
   ];
-  // 📉 消耗 — 刷短视频·刷社交媒体
   const wasteKW = [
     '刷短视频','刷抖音','刷快手','刷b站','刷bilibili','刷视频','刷手机','刷微博','刷小红书','刷ins','刷朋友圈',
     '刷贴吧','刷知乎','刷头条','刷资讯','刷新闻','刷ig','刷tiktok','玩手机','看手机',
-    '刷直播','看直播'
+    '刷直播','看直播','刷淘宝','刷京东','刷拼多多'
   ];
-  // ⛓️ 损耗 — 加班·内耗·拖延
   const drainKW = [
-    '加班','无意义加班','内耗','拖延','摸鱼','发呆','摆烂','躺床上发呆','焦虑','emo',
+    '加班','内耗','拖延','摸鱼','发呆','摆烂','躺床发呆','焦虑','emo',
     '无效社交','开会','开无聊的会'
   ];
-  // 📋 杂务 — 通勤·家务·等待
   const choreKW = [
     '通勤','坐车','开车','地铁','公交','骑车','赶路','路上',
     '家务','扫地','拖地','洗碗','洗衣服','整理','收纳','打扫','擦桌子','倒垃圾','买菜','做家务',
@@ -425,7 +474,6 @@ function classify(name) {
     '遛狗','养猫','喂猫','喂狗'
   ];
 
-  // Negative keywords override — if something matches waste/drain, those take priority
   for (const kw of drainKW)   { if (n.includes(kw)) return 'liability'; }
   for (const kw of wasteKW)   { if (n.includes(kw)) return 'depreciation'; }
   for (const kw of investKW)  { if (n.includes(kw)) return 'investment'; }
@@ -434,36 +482,34 @@ function classify(name) {
   for (const kw of choreKW)   { if (n.includes(kw)) return 'operating'; }
   for (const kw of maintKW)   { if (n.includes(kw)) return 'maintenance'; }
 
-  // Fallback heuristics
   if (n.includes('班') || n.includes('工') || n.includes('作') || n.includes('职')) return 'investment';
-  return 'expense'; // default
+  return 'expense';
 }
 
 function getBadge(type) {
   const map = {
-    investment:    { label: '📈 增值', color: '#10b981', bg: '#ecfdf5' },
-    dividend:      { label: '💛 社交', color: '#f59e0b', bg: '#fffbeb' },
-    maintenance:   { label: '🔋 维护', color: '#3b82f6', bg: '#eff6ff' },
-    expense:       { label: '🎮 娱乐', color: '#8b5cf6', bg: '#f5f3ff' },
-    depreciation:  { label: '📉 消耗', color: '#ef4444', bg: '#fef2f2' },
-    liability:     { label: '⛓️ 损耗', color: '#dc2626', bg: '#fef2f2' },
-    operating:     { label: '📋 杂务', color: '#6b7280', bg: '#f9fafb' },
+    investment:    { label: '📈 增值', color: '#ca8a04', bg: '#fef7e6' },
+    dividend:      { label: '💛 社交', color: '#b45309', bg: '#fef3e2' },
+    maintenance:   { label: '🔋 维护', color: '#2563eb', bg: '#eef2ff' },
+    expense:       { label: '🎮 娱乐', color: '#7c3aed', bg: '#f5f0ff' },
+    depreciation:  { label: '📉 消耗', color: '#dc2626', bg: '#fef2f2' },
+    liability:     { label: '⛓️ 损耗', color: '#b91c1c', bg: '#fef2f2' },
+    operating:     { label: '📋 杂务', color: '#78716c', bg: '#f5f5f4' },
   };
   return map[type] || map.expense;
 }
 
 const CAT = {
-  investment:    { coeff: 1.8, color: '#10b981', label: '增值' },
-  dividend:      { coeff: 1.3, color: '#f59e0b', label: '社交' },
-  maintenance:   { coeff: 0.9, color: '#3b82f6', label: '维护' },
-  expense:       { coeff: 0.5, color: '#8b5cf6', label: '娱乐' },
-  depreciation:  { coeff: 0.15, color: '#ef4444', label: '消耗' },
-  liability:     { coeff: -0.3, color: '#dc2626', label: '损耗' },
-  operating:     { coeff: 0.4, color: '#6b7280', label: '杂务' },
+  investment:    { coeff: 1.8, color: '#ca8a04', label: '增值' },
+  dividend:      { coeff: 1.3, color: '#b45309', label: '社交' },
+  maintenance:   { coeff: 0.9, color: '#2563eb', label: '维护' },
+  expense:       { coeff: 0.5, color: '#7c3aed', label: '娱乐' },
+  depreciation:  { coeff: 0.15, color: '#dc2626', label: '消耗' },
+  liability:     { coeff: -0.3, color: '#b91c1c', label: '损耗' },
+  operating:     { coeff: 0.4, color: '#78716c', label: '杂务' },
 };
 const CAT_KEYS = Object.keys(CAT);
 
-// ===== State =====
 let habits = [];
 let currentTime = 1;
 
@@ -472,12 +518,10 @@ function adjTime(delta) {
   document.getElementById('timeDisplay').textContent = currentTime;
 }
 
-// ===== Add =====
 function addHabit() {
   const nameEl = document.getElementById('habitName');
   const name = nameEl.value.trim();
   if (!name) { nameEl.focus(); shake(nameEl); return; }
-
   const type = classify(name);
   habits.push({ name, hours: currentTime, type });
   nameEl.value = '';
@@ -503,9 +547,9 @@ function renderTags() {
   const el = document.getElementById('tagList');
   el.innerHTML = habits.map((h, i) => {
     const badge = getBadge(h.type);
-    return `<span class="tag" style="background:${badge.bg};color:${badge.color}">
+    return `<span class="tag" style="background:${badge.bg};color:${badge.color};border:1px solid ${badge.bg}">
       ${badge.label} ${h.name} ${h.hours}h
-      <button class="remove" onclick="removeHabit(${i})">✕</button>
+      <button class="remove" ontouchstart="" onclick="removeHabit(${i});tapVibrate()">✕</button>
     </span>`;
   }).join('');
 }
@@ -522,10 +566,9 @@ function shake(el) {
   setTimeout(() => el.style.borderColor = '', 500);
 }
 const styleShake = document.createElement('style');
-styleShake.textContent = `@keyframes shake { 0%,100% { transform:translateX(0) } 25% { transform:translateX(-6px) } 50% { transform:translateX(6px) } }`;
+styleShake.textContent = `@keyframes shake { 0%,100% { transform:translateX(0) } 25% { transform:translateX(-7px) } 50% { transform:translateX(7px) } }`;
 document.head.appendChild(styleShake);
 
-// ===== Presets =====
 const PRESETS = {
   '打工人': [
     ['睡觉',7], ['吃饭洗漱',1.5], ['上班',9],
@@ -535,7 +578,7 @@ const PRESETS = {
   '卷王': [
     ['睡觉',5.5], ['吃饭',1], ['加班工作',13],
     ['通勤',1], ['健身',0.5], ['学习',1],
-    ['刷行业资讯',1], ['社交',0.5], ['洗漱',0.5]
+    ['刷资讯',1], ['社交',0.5], ['洗漱',0.5]
   ],
   '躺平': [
     ['睡觉',9], ['吃饭',2], ['刷短视频',4],
@@ -564,7 +607,6 @@ function loadPreset(name) {
   calculate();
 }
 
-// ===== Calculate =====
 function calculate() {
   if (habits.length === 0) return;
 
@@ -573,7 +615,6 @@ function calculate() {
   setTimeout(() => results.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
 
   const total = habits.reduce((s, h) => s + h.hours, 0);
-
   const groups = {};
   CAT_KEYS.forEach(k => { groups[k] = { hours: 0, items: [] }; });
   habits.forEach(h => {
@@ -619,20 +660,20 @@ function renderScore(score, grade) {
   const fill = document.getElementById('ringFill');
   fill.style.strokeDashoffset = offset;
   let color;
-  if (score >= 60) color = '#10b981';
-  else if (score >= 35) color = '#f59e0b';
-  else color = '#ef4444';
+  if (score >= 60) color = '#ca8a04';
+  else if (score >= 35) color = '#b45309';
+  else color = '#dc2626';
   fill.setAttribute('stroke', color);
   document.getElementById('scoreNum').textContent = Math.round(score);
   document.getElementById('scoreNum').style.color = color;
-  const gEl = document.getElementById('scoreGrade');
-  gEl.textContent = grade;
-  gEl.style.color = color;
+  document.getElementById('scoreGrade').textContent = grade;
+  document.getElementById('scoreGrade').style.color = color;
+
   let desc;
-  if (score >= 80) desc = '你是 <strong>蓝筹资产</strong>，时间配置科学合理。建议持有并定期复盘。';
-  else if (score >= 60) desc = '你的时间配置 <strong>基本健康</strong>，减少消耗类活动即可更上一层楼。';
-  else if (score >= 40) desc = '存在 <strong>结构性风险</strong>，不良资产占比偏高。建议重新配置你的时间组合。';
-  else desc = '时间资产负债表 <strong>严重承压</strong>，消耗和损耗类占据主导。建议立即采取行动。';
+  if (score >= 80) desc = '你是 <strong>蓝筹资产</strong>，时间配置科学合理，具备长期竞争优势。';
+  else if (score >= 60) desc = '时间配置 <strong>基本健康</strong>，减少消耗类活动即可更上一层楼。';
+  else if (score >= 40) desc = '存在 <strong>结构性风险</strong>，不良资产偏高，建议重新配置时间组合。';
+  else desc = '时间资产负债表 <strong>严重承压</strong>，消耗和损耗类占据主导。';
   document.getElementById('scoreDesc').innerHTML = desc;
 }
 
@@ -643,17 +684,17 @@ function renderMetrics(score, roi, invH, badH, total) {
   document.getElementById('metricGrid').innerHTML = `
     <div class="metric">
       <div class="m-label">增值效率</div>
-      <div class="m-value" style="color:${eff > 30 ? '#10b981' : '#f59b0b'}">${eff.toFixed(0)}%</div>
+      <div class="m-value" style="color:${eff > 30 ? '#ca8a04' : '#b45309'}">${eff.toFixed(0)}%</div>
       <div class="m-sub">增值活动占比</div>
     </div>
     <div class="metric">
       <div class="m-label">不良率</div>
-      <div class="m-value" style="color:${badPct < 20 ? '#10b981' : '#ef4444'}">${badPct.toFixed(0)}%</div>
+      <div class="m-value" style="color:${badPct < 20 ? '#ca8a04' : '#dc2626'}">${badPct.toFixed(0)}%</div>
       <div class="m-sub">消耗+损耗占比</div>
     </div>
     <div class="metric">
       <div class="m-label">年化复利</div>
-      <div class="m-value" style="color:${yearly > 0 ? '#10b981' : '#ef4444'}">${yearly > 0 ? '+' : ''}${(yearly * 100).toFixed(0)}%</div>
+      <div class="m-value" style="color:${yearly > 0 ? '#ca8a04' : '#dc2626'}">${yearly > 0 ? '+' : ''}${(yearly * 100).toFixed(0)}%</div>
       <div class="m-sub">基于日回报率滚动</div>
     </div>
   `;
@@ -681,59 +722,36 @@ function renderRisks(groups, score, sleepH, total) {
   const depPct = ((groups.depreciation?.hours || 0) / total) || 0;
   const liaPct = ((groups.liability?.hours || 0) / total) || 0;
   const invPct = ((groups.investment?.hours || 0) / total) || 0;
-
-  if (depPct > 0.15) risks.push(['📉', '消耗类占比 ' + (depPct*100).toFixed(0) + '%，正在快速折旧你的认知资本。']);
-  if (liaPct > 0.10) risks.push(['⛓️', '损耗类超出健康阈值，正在产生负收益。建议止损。']);
-  if (invPct < 0.15) risks.push(['📈', '增值类仅 ' + (invPct*100).toFixed(0) + '%，长期将跑输人生大盘。']);
-  if (sleepH > 0 && sleepH < 6) risks.push(['🔴', '睡眠仅 ' + sleepH.toFixed(1) + ' 小时，系统存在宕机风险。']);
-  if (score < 40) risks.push(['⚠️', '评分进入警戒区间，建议召开人生临时股东大会。']);
-
-  if (risks.length === 0) risks.push(['🟢', '风险可控，当前时间配置符合健康标准。']);
-
-  el.innerHTML = risks.map(r =>
-    '<div class="risk-item"><span class="ri-icon">' + r[0] + '</span><span>' + r[1] + '</span></div>'
-  ).join('');
+  if (depPct > 0.15) risks.push(['📉', '消耗类占 '+(depPct*100).toFixed(0)+'%，认知资本快速折旧中。']);
+  if (liaPct > 0.10) risks.push(['⛓️', '损耗类超出阈值，正在产生负收益。']);
+  if (invPct < 0.15) risks.push(['📈', '增值类仅 '+(invPct*100).toFixed(0)+'%，长期将跑输大盘。']);
+  if (sleepH > 0 && sleepH < 6) risks.push(['🔴', '睡眠仅 '+sleepH.toFixed(1)+' 小时，宕机风险上升。']);
+  if (score < 40) risks.push(['⚠️', '评分进入警戒区间。']);
+  if (risks.length === 0) risks.push(['🟢', '风险可控，配置符合健康标准。']);
+  el.innerHTML = risks.map(r => '<div class="risk-item"><span class="ri-icon">'+r[0]+'</span><span>'+r[1]+'</span></div>').join('');
 }
 
 function renderVerdict(score, grade, gCls, invH, depH, liaH, sleepH, groups, total) {
   const el = document.getElementById('verdictContent');
   const tipsEl = document.getElementById('tipsContent');
-
   let icon, title, desc;
-  if (score >= 80) { icon = '🏆'; title = '强烈买入 · ' + grade; desc = '你的人生是一支值得长期持有的优质资产。'; }
-  else if (score >= 60) { icon = '👍'; title = '持有 · ' + grade; desc = '底子不错，减少消耗就能更上一层楼。'; }
-  else if (score >= 40) { icon = '🤔'; title = '观望 · ' + grade; desc = '平庸但还有救，重新审视时间配置策略吧。'; }
-  else { icon = '🚨'; title = '紧急处理 · ' + grade; desc = '建议立即启动人生资产重组计划。'; }
-
-  el.innerHTML = '<div class="verdict-box ' + gCls + '"><div class="v-icon">' + icon + '</div><div class="v-title">' + title + '</div><div class="v-desc">' + desc + '</div></div>';
+  if (score >= 80) { icon='🏆'; title='强烈买入 · '+grade; desc='你的人生是一支值得长期持有的优质资产。'; }
+  else if (score >= 60) { icon='👍'; title='持有 · '+grade; desc='底子不错，减少消耗就能更上一层楼。'; }
+  else if (score >= 40) { icon='🤔'; title='观望 · '+grade; desc='平庸但还有救，重新审视时间配置吧。'; }
+  else { icon='🚨'; title='紧急处理 · '+grade; desc='建议立即启动人生资产重组计划。'; }
+  el.innerHTML = '<div class="verdict-box '+gCls+'"><div class="v-icon">'+icon+'</div><div class="v-title">'+title+'</div><div class="v-desc">'+desc+'</div></div>';
 
   const tips = [];
-  if (invH < 2) tips.push('📈 <strong>增加增值活动：</strong>每天至少 2 小时在学习或锻炼上。');
-  if (depH > 1) tips.push('📉 <strong>减少消耗：</strong>刷社交媒体控制在 30 分钟以内。');
-  if (liaH > 0.5) tips.push('⛓️ <strong>止损损耗：</strong>无效加班和内耗是负资产。');
-  if (sleepH > 0 && sleepH < 7) tips.push('😴 <strong>保证睡眠：</strong>7-8 小时不可压缩。');
-  const divH = groups.dividend?.hours || 0;
-  if (divH < 0.5) tips.push('💛 <strong>增加社交：</strong>陪家人朋友是低风险高回报资产。');
-
-  if (tips.length > 0) {
-    tipsEl.innerHTML = '<strong>💡 优化建议</strong><br>' + tips.join('<br>');
-    tipsEl.style.display = 'block';
-  } else {
-    tipsEl.style.display = 'none';
-  }
+  if (invH < 2) tips.push('📈 增加增值活动：每天至少 2 小时学习或锻炼。');
+  if (depH > 1) tips.push('📉 减少消耗：刷社交媒体控制在 30 分钟以内。');
+  if (liaH > 0.5) tips.push('⛓️ 止损损耗：无效加班和内耗是负资产。');
+  if (sleepH > 0 && sleepH < 7) tips.push('😴 保证睡眠：7-8 小时不可压缩。');
+  if ((groups.dividend?.hours||0) < 0.5) tips.push('💛 增加社交：陪家人朋友是低风险高回报资产。');
+  if (tips.length > 0) { tipsEl.innerHTML = '<strong>💡 优化建议</strong><br>'+tips.join('<br>'); tipsEl.style.display='block'; }
+  else { tipsEl.style.display='none'; }
 }
 
-// ===== Init =====
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('habitName').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addHabit();
-  });
-  document.getElementById('habitName').addEventListener('input', () => {
-    // Preview classification as user types
-  });
-});
-</script>
-<script>
+// ===== Service Worker =====
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/life-investment-calculator/sw.js');
 }

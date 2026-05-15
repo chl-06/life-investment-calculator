@@ -6,8 +6,8 @@
   "scope": "/life-investment-calculator/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f0f2f5",
-  "theme_color": "#667eea",
+  "background_color": "#fef9f0",
+  "theme_color": "#fb923c",
   "categories": ["lifestyle", "utilities"],
   "icons": [
     {
