@@ -708,9 +708,9 @@ function initAudio() {
 
 // 封装震动函数（震动 + Web Audio 音效回退）
 function vibrate(ms) {
-  // 先尝试硬件震动
+  // 先尝试硬件震动（navigator.vibrate 失败返回 false 而非抛异常）
   if ("vibrate" in navigator) {
-    try { navigator.vibrate(ms); return; } catch(e) {}
+    try { if (navigator.vibrate(ms)) return; } catch(e) {}
   }
   // 短震动（≤20ms）不播放音效，避免滑块操作太吵
   if (typeof ms === 'number' && ms <= 20) return;
@@ -720,18 +720,18 @@ function vibrate(ms) {
 function playClick() {
   try {
     initAudio();
-    if (audioCtx && audioCtx.state === 'running') {
-      var osc = audioCtx.createOscillator();
-      var gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.frequency.value = 800;
-      osc.type = 'sine';
-      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
-      osc.start(audioCtx.currentTime);
-      osc.stop(audioCtx.currentTime + 0.06);
-    }
+    if (!audioCtx) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = 800;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + 0.06);
   } catch(e) {}
 }
 function playClick() {
