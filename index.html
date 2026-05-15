@@ -3,12 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#D4A373">
 <link rel="manifest" href="/life-investment-calculator/manifest.json">
 <link rel="icon" href="/life-investment-calculator/icons/icon.svg" type="image/svg+xml">
 <title>人生 ROI 计算器</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Poppins:wght@400;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&display=swap');
 
   :root {
     --paper-bg: #FAF9F6;
@@ -370,7 +373,11 @@
 </div>
 
 <script>
-function v() { try { navigator.vibrate && navigator.vibrate(10); } catch(e) {} }
+function vibrate() {
+  if (window.navigator && window.navigator.vibrate) {
+    window.navigator.vibrate(15);
+  }
+}
 
 // ===== 自动分类 =====
 function classify(name) {
@@ -412,7 +419,7 @@ const KEYS = Object.keys(CAT);
 let habits = [];
 let curTime = 1;
 
-function adjTime(d) { curTime = Math.max(0.5, Math.min(16, curTime + d)); document.getElementById('timeDisplay').textContent = curTime; v(); }
+function adjTime(d) { curTime = Math.max(0.5, Math.min(16, curTime + d)); document.getElementById('timeDisplay').textContent = curTime; vibrate(); }
 
 function parseItem(text) {
   text = text.trim();
@@ -434,11 +441,11 @@ function addHabit() {
   let added = 0;
   items.forEach(item => { const p = parseItem(item); if (p) { habits.push(p); added++; } });
   el.value = ''; el.focus();
-  if (added) { render(); enable(); v(); }
+  if (added) { render(); enable(); vibrate(); }
 }
 
-function removeHabit(i) { habits.splice(i, 1); render(); enable(); v(); }
-function clearHabits() { if (habits.length) { habits = []; render(); enable(); v(); } }
+function removeHabit(i) { habits.splice(i, 1); render(); enable(); vibrate(); }
+function clearHabits() { if (habits.length) { habits = []; render(); enable(); vibrate(); } }
 
 function render() {
   document.getElementById('tagList').innerHTML = habits.map((h, i) => {
@@ -459,11 +466,11 @@ const PRESETS = {
 
 function loadPreset(name) {
   habits = (PRESETS[name]||[]).map(d => ({ name:d[0], hours:d[1], type:classify(d[0]) }));
-  render(); enable(); calculate(); v();
+  render(); enable(); calculate(); vibrate();
 }
 
 function calculate() {
-  if (!habits.length) return; v();
+  if (!habits.length) return; vibrate();
   const r = document.getElementById('results');
   r.classList.add('show');
   setTimeout(() => r.scrollIntoView({ behavior:'smooth' }), 50);
@@ -537,9 +544,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('habitName').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
 });
 
-document.addEventListener('click', function(e) {
-  if (e.target.closest('button')) { try { navigator.vibrate && navigator.vibrate(8); } catch(e) {} }
-}, false);
+// Touch vibration for all buttons — add vibrate on touchend
+document.addEventListener('touchend', function(e) {
+  if (e.target.closest('button')) vibrate();
+}, { passive: true });
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/life-investment-calculator/sw.js');
